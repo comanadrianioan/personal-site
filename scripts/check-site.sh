@@ -137,5 +137,18 @@ assert_contains "$FIX/writing/older-post/index.html" '<meta name="description" c
 assert_not_contains "$FIX/writing/older-post/index.html" 'href="/personal-site/tags/'
 assert_cmd "archetype creates drafts" grep -q '^draft: true' archetypes/writing.md
 
+# --- Task 5 ---
+WF=.github/workflows/deploy.yml
+assert_file "$WF"
+assert_not_contains "$WF" '^[[:space:]]*schedule:'
+assert_cmd "every action pinned to a commit SHA" bash -c '[ -f '"$WF"' ] && ! grep -E "^[[:space:]]*-?[[:space:]]*uses:" '"$WF"' | grep -vqE "@[0-9a-f]{40}"'
+assert_cmd "CI Hugo version == local Hugo version" bash -c 'v=$(hugo version | grep -oE "v[0-9]+\.[0-9]+\.[0-9]+" | head -1); grep -q "HUGO_VERSION: ${v#v}" '"$WF"
+assert_cmd "workflow-level permissions empty" grep -qE '^permissions: \{\}' "$WF"
+assert_cmd "build job is read-only" bash -c 'b=$(awk "/^  build:/,/^  deploy:/" '"$WF"'); echo "$b" | grep -q "contents: read" && ! echo "$b" | grep -qE "pages: write|id-token: write"'
+assert_cmd "deploy job can deploy" bash -c 'awk "/^  deploy:/,0" '"$WF"' | grep -q "id-token: write"'
+assert_contains "$WF" 'scripts/check-site\.sh'
+assert_cmd "no personal secrets in workflow" bash -c '[ -f '"$WF"' ] && ! grep -oE "secrets\.[A-Za-z_]+" '"$WF"' | grep -v "secrets.GITHUB_TOKEN"'
+assert_file README.md
+
 # ---------------------------------------------------------------- result
 if [ "$FAILS" -eq 0 ]; then echo "ALL CHECKS PASSED"; else echo "$FAILS CHECK(S) FAILED"; exit 1; fi
