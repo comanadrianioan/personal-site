@@ -1,0 +1,6 @@
+.superpowers/
+docs/
+public/
+resources/
+.hugo_build.lock
+content/writing/drafts/

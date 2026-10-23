@@ -1,0 +1,7 @@
+# Used only by scripts/check-site.sh: adds the fixture posts on top of the real content.
+[[module.mounts]]
+source = "content"
+target = "content"
+[[module.mounts]]
+source = "tests/fixtures/content"
+target = "content"
