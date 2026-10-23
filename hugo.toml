@@ -14,3 +14,17 @@ disableKinds = ["taxonomy", "term"]
 
   [params.logo]
     logoText = "adrian@coman:~$"
+
+[params.links]
+  github = "https://github.com/comanadrianioan"
+  # linkedin = "https://www.linkedin.com/in/<slug>/"   # left out for v1
+
+[menus]
+  [[menus.main]]
+    name = "about"
+    pageRef = "/about"
+    weight = 1
+  [[menus.main]]
+    name = "writing"
+    pageRef = "/writing"
+    weight = 2

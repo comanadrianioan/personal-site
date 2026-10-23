@@ -102,5 +102,22 @@ else
   skip "og-image size (no sips on this machine)"
 fi
 
+# --- Task 3 ---
+assert_contains "$PLAIN/index.html" '\$ whoami'
+assert_contains "$PLAIN/index.html" 'class="tagline">Senior Engineer @ CrowdStrike'
+assert_contains "$PLAIN/index.html" 'href="https://github\.com/comanadrianioan"'
+assert_cmd "no LinkedIn link yet (left out for v1)" bash -c '! grep_site "linkedin\.com"'
+assert_not_contains "$PLAIN/index.html" 'class="recent"'
+assert_contains "$PLAIN/index.html" 'href="/personal-site/about/"'
+assert_contains "$PLAIN/index.html" 'href="/personal-site/writing/"'
+# The mobile menu always has one trigger; a second one means the desktop "Show more" dropdown appeared.
+assert_cmd "no desktop 'Show more' dropdown" bash -c '[ "$(grep -o "class=\"menu__trigger\"" "$PLAIN/index.html" | wc -l | tr -d " ")" = 1 ]'
+assert_file "$PLAIN/about/index.html"
+for word in Playtika CrowdStrike POLITEHNICA 2014; do
+  assert_contains "$PLAIN/about/index.html" "$word"
+done
+assert_not_contains "$PLAIN/about/index.html" '(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* 20[0-9]{2}'
+assert_contains "$PLAIN/sitemap.xml" '/personal-site/about/'
+
 # ---------------------------------------------------------------- result
 if [ "$FAILS" -eq 0 ]; then echo "ALL CHECKS PASSED"; else echo "$FAILS CHECK(S) FAILED"; exit 1; fi
