@@ -119,5 +119,23 @@ done
 assert_not_contains "$PLAIN/about/index.html" '(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* 20[0-9]{2}'
 assert_contains "$PLAIN/sitemap.xml" '/personal-site/about/'
 
+# --- Task 4 ---
+assert_contains "$PLAIN/writing/index.html" 'class="empty"'
+assert_contains "$PLAIN/writing/index.html" 'first post coming soon'
+assert_not_contains "$PLAIN/writing/index.html" 'class="ls"'
+assert_contains "$FIX/index.html" 'class="recent"'
+assert_contains "$FIX/index.html" 'Java &amp; GenAI: &lt;notes&gt;'
+assert_contains "$FIX/writing/index.html" 'Java &amp; GenAI: &lt;notes&gt;'
+# The theme markdownifies titles, which silently drops "<...>" on the post page itself.
+assert_contains "$FIX/writing/java-and-genai/index.html" '/writing/java-and-genai/">Java &amp; GenAI: &lt;notes&gt;</a>'
+for page in index.html writing/index.html; do
+  assert_cmd "newest first: $page" bash -c 'grep -oE "java-and-genai|older-post" "$FIX/'"$page"'" | head -1 | grep -q java-and-genai'
+done
+assert_cmd "home RSS lists only writing posts" bash -c '[ "$(grep -c "<item>" "$FIX/index.xml")" = 2 ] && ! grep -q "/about/" "$FIX/index.xml"'
+assert_contains "$FIX/index.xml" 'Java &amp;amp; GenAI|Java &amp; GenAI'
+assert_contains "$FIX/writing/older-post/index.html" '<meta name="description" content="[^"]+'
+assert_not_contains "$FIX/writing/older-post/index.html" 'href="/personal-site/tags/'
+assert_cmd "archetype creates drafts" grep -q '^draft: true' archetypes/writing.md
+
 # ---------------------------------------------------------------- result
 if [ "$FAILS" -eq 0 ]; then echo "ALL CHECKS PASSED"; else echo "$FAILS CHECK(S) FAILED"; exit 1; fi

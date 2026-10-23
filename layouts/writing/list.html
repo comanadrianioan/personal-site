@@ -1,0 +1,13 @@
+{{/* /writing/: compact date + title list, or an empty-state line while there are no posts. */}}
+{{ define "main" }}
+  <p class="prompt">$ ls writing/</p>
+  {{ with .RegularPages }}
+    <ul class="ls">
+      {{ range . }}
+        <li><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006-01-02" }}</time> <a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      {{ end }}
+    </ul>
+  {{ else }}
+    <p class="empty">(empty — first post coming soon)</p>
+  {{ end }}
+{{ end }}
