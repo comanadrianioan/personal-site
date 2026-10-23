@@ -13,7 +13,7 @@ disableKinds = ["taxonomy", "term"]
   skills = ["genai", "java", "go", "spring-boot", "microservices", "cloud-native"]
   readOtherPosts = "read other posts"
   dateFormat = "Jan 2, 2006"
-  subtitle = "Senior Engineer @ CrowdStrike · GenAI · Java · Cloud-native"
+  subtitle = "Senior Engineer @ CrowdStrike · GenAI · Go · Cloud infrastructure"
 
 [params.links]
   github = "https://github.com/comanadrianioan"

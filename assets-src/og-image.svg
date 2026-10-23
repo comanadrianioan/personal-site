@@ -3,5 +3,5 @@
   <text x="90" y="250" font-family="Menlo" font-size="44" fill="#3fb950">$</text>
   <text x="140" y="250" font-family="Menlo" font-size="44" fill="#c9d1d9">whoami</text>
   <text x="90" y="345" font-family="Menlo" font-size="68" font-weight="bold" fill="#f0f6fc">Adrian-Ioan Coman</text>
-  <text x="90" y="420" font-family="Menlo" font-size="30" fill="#8b949e">Senior Engineer @ CrowdStrike · GenAI · Java · Cloud-native</text>
+  <text x="90" y="420" font-family="Menlo" font-size="26" fill="#8b949e">Senior Engineer @ CrowdStrike · GenAI · Go · Cloud infrastructure</text>
 </svg>
