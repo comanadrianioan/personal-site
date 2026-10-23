@@ -10,6 +10,7 @@ disableKinds = ["taxonomy", "term"]
 [params]
   contentTypeName = "writing"
   showMenuItems = 2
+  readOtherPosts = "read other posts"
   subtitle = "Senior Engineer @ CrowdStrike · GenAI · Java · Cloud-native"
 
   [params.logo]

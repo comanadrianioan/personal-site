@@ -83,7 +83,8 @@ selftest() {
 selftest
 assert_file "$PLAIN/index.html"
 assert_contains "$PLAIN/index.html" 'href="https://comanadrianioan\.github\.io/personal-site/css/'
-assert_cmd "links keep sub-path" bash -c '! grep -rhoE "(href|src)=\"/[^\"]*" "$PLAIN" --include=*.html | grep -v "=\"/personal-site/"'
+# Root-relative AND absolute same-host links, in both builds (post pages exist only in $FIX).
+assert_cmd "links keep sub-path" bash -c '! grep -rhoE "(href|src)=\"(https://comanadrianioan\.github\.io)?/[^\"]*" "$PLAIN" "$FIX" --include=*.html | grep -vE "=\"(https://comanadrianioan\.github\.io)?/personal-site/"'
 check_banned
 assert_cmd "drafts are git-ignored" git check-ignore -q content/writing/drafts/example.md
 assert_cmd "docs/ is git-ignored" git check-ignore -q docs/superpowers/specs/x.md
@@ -136,6 +137,9 @@ assert_contains "$FIX/index.xml" 'Java &amp;amp; GenAI|Java &amp; GenAI'
 assert_contains "$FIX/writing/older-post/index.html" '<meta name="description" content="[^"]+'
 assert_not_contains "$FIX/writing/older-post/index.html" 'href="/personal-site/tags/'
 assert_cmd "archetype creates drafts" grep -q '^draft: true' archetypes/writing.md
+
+# Post pages: the theme's prev/next block shows a heading from params.readOtherPosts.
+assert_not_contains "$FIX/writing/older-post/index.html" 'class="pagination__title-h"></span>'
 
 # --- Task 5 ---
 WF=.github/workflows/deploy.yml
