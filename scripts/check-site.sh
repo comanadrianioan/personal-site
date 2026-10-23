@@ -90,8 +90,10 @@ assert_cmd "drafts are git-ignored" git check-ignore -q content/writing/drafts/e
 assert_cmd "docs/ is git-ignored" git check-ignore -q docs/superpowers/specs/x.md
 
 # --- Task 2 ---
-assert_contains "$PLAIN/index.html" 'personal-site/terminal\.css'
-assert_contains "$PLAIN/index.html" 'personal-site/style\.css'
+# All CSS (theme + site) ships as one bundle, and the theme's unused Fira Code fonts are not referenced.
+assert_cmd "exactly one stylesheet" bash -c '[ "$(grep -o "rel=\"stylesheet\"" "$PLAIN/index.html" | wc -l | tr -d " ")" = 1 ]'
+assert_cmd "site styles are in the bundle" bash -c 'grep -q "skip-link" "$PLAIN"/css/*.css'
+assert_cmd "no Fira Code reference" bash -c '! grep -rq "FiraCode" "$PLAIN/css"'
 assert_contains "$PLAIN/index.html" "© $(date +%Y) Adrian-Ioan Coman"
 assert_not_contains "$PLAIN/index.html" 'panr'
 for img in favicon.png apple-touch-icon.png og-image.png; do
@@ -105,26 +107,32 @@ fi
 
 # --- Task 3 ---
 assert_contains "$PLAIN/index.html" '\$ whoami'
-assert_contains "$PLAIN/index.html" 'class="tagline">Senior Engineer @ CrowdStrike'
+assert_contains "$PLAIN/index.html" 'class="tagline"><span>Senior Engineer @ CrowdStrike</span>'
 assert_contains "$PLAIN/index.html" 'href="https://github\.com/comanadrianioan"'
-assert_cmd "no LinkedIn link yet (left out for v1)" bash -c '! grep_site "linkedin\.com"'
-assert_not_contains "$PLAIN/index.html" 'class="recent"'
+assert_contains "$PLAIN/index.html" 'href="https://www\.linkedin\.com/in/adrian-ioan-coman/?"'
+assert_contains "$PLAIN/about/index.html" 'href="https://www\.linkedin\.com/in/adrian-ioan-coman/?"'
+assert_not_contains "$PLAIN/index.html" 'happy to connect'
+assert_not_contains "$PLAIN/index.html" 'class="recent[ "]'
 assert_contains "$PLAIN/index.html" 'href="/personal-site/about/"'
 assert_contains "$PLAIN/index.html" 'href="/personal-site/writing/"'
-# The mobile menu always has one trigger; a second one means the desktop "Show more" dropdown appeared.
-assert_cmd "no desktop 'Show more' dropdown" bash -c '[ "$(grep -o "class=\"menu__trigger\"" "$PLAIN/index.html" | wc -l | tr -d " ")" = 1 ]'
+# Own header (layouts/partials/header.html): both menu items are plain links, no theme dropdown.
+assert_contains "$PLAIN/index.html" 'class="site-nav"'
+assert_not_contains "$PLAIN/index.html" 'menu__dropdown|menu__trigger'
 assert_file "$PLAIN/about/index.html"
-for word in Playtika CrowdStrike POLITEHNICA 2014; do
+for word in Playtika CrowdStrike POLITEHNICA Present; do
   assert_contains "$PLAIN/about/index.html" "$word"
 done
 assert_not_contains "$PLAIN/about/index.html" '(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* 20[0-9]{2}'
+# Adrian's call: no years on About (only CrowdStrike is marked "Present"); earlier roles left out.
+assert_not_contains "$PLAIN/about/index.html" 'tl-years[^>]*>[^<]*(19|20)[0-9]{2}'
+assert_not_contains "$PLAIN/about/index.html" 'Tag4it|1&amp;1|IONOS'
 assert_contains "$PLAIN/sitemap.xml" '/personal-site/about/'
 
 # --- Task 4 ---
 assert_contains "$PLAIN/writing/index.html" 'class="empty"'
 assert_contains "$PLAIN/writing/index.html" 'first post coming soon'
 assert_not_contains "$PLAIN/writing/index.html" 'class="ls"'
-assert_contains "$FIX/index.html" 'class="recent"'
+assert_contains "$FIX/index.html" 'class="recent[ "]'
 assert_contains "$FIX/index.html" 'Java &amp; GenAI: &lt;notes&gt;'
 assert_contains "$FIX/writing/index.html" 'Java &amp; GenAI: &lt;notes&gt;'
 # The theme markdownifies titles, which silently drops "<...>" on the post page itself.
@@ -140,6 +148,22 @@ assert_cmd "archetype creates drafts" grep -q '^draft: true' archetypes/writing.
 
 # Post pages: the theme's prev/next block shows a heading from params.readOtherPosts.
 assert_not_contains "$FIX/writing/older-post/index.html" 'class="pagination__title-h"></span>'
+
+# --- Site review fixes ---
+for page in index.html about/index.html writing/index.html 404.html; do
+  assert_contains "$PLAIN/$page" 'class="skip-link" href="#main"'
+  assert_contains "$PLAIN/$page" 'id="main"'
+done
+assert_contains "$FIX/writing/java-and-genai/index.html" 'id="main"'
+assert_contains "$PLAIN/index.html" 'name="twitter:card" content="summary_large_image"'
+assert_contains "$PLAIN/writing/index.html" '<meta name="description" content="[^"]+'
+assert_contains "$PLAIN/404.html" '<meta name="description" content="[^"]+'
+assert_contains "$PLAIN/404.html" 'no such file or directory'
+assert_not_contains "$PLAIN/index.html" 'class="tagline">.*GenAI'
+assert_contains "$FIX/writing/java-and-genai/index.html" 'Sep 1, 2026'
+assert_contains "$FIX/writing/java-and-genai/index.html" '\$ cat writing/java-and-genai\.md'
+assert_contains "$FIX/writing/java-and-genai/index.html" 'class="back-link" href="/personal-site/writing/"'
+assert_cmd "no dead theme config" bash -c '! grep -qE "showMenuItems|logoText" hugo.toml'
 
 # --- Task 5 ---
 WF=.github/workflows/deploy.yml

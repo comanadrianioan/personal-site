@@ -9,16 +9,15 @@ disableKinds = ["taxonomy", "term"]
 
 [params]
   contentTypeName = "writing"
-  showMenuItems = 2
+  fullWidthTheme = true
+  skills = ["genai", "java", "go", "spring-boot", "microservices", "cloud-native"]
   readOtherPosts = "read other posts"
+  dateFormat = "Jan 2, 2006"
   subtitle = "Senior Engineer @ CrowdStrike · GenAI · Java · Cloud-native"
-
-  [params.logo]
-    logoText = "adrian@coman:~$"
 
 [params.links]
   github = "https://github.com/comanadrianioan"
-  # linkedin = "https://www.linkedin.com/in/<slug>/"   # left out for v1
+  linkedin = "https://www.linkedin.com/in/adrian-ioan-coman/"
 
 [menus]
   [[menus.main]]

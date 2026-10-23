@@ -1,11 +1,12 @@
-{{/* Theme v4.2.6 404.html; changed: "back to home" uses the site's home permalink, so it keeps the /personal-site/ sub-path (the theme's `"/" | absURL` dropped it). */}}
+{{/* Theme v4.2.6 404.html, restyled as a shell error; "back to home" keeps the /personal-site/ sub-path. */}}
 {{ define "main" }}
-  <div class="post">
-    <h1 class="post-title">404 — {{ $.Site.Params.missingContentMessage | default "Page not found..." }}</h1>
-
-    <div class="post-content">
-      <a href="{{ site.Home.Permalink }}">{{ $.Site.Params.missingBackButtonLabel | default "Back to home page" }}&nbsp;→</a>
+  <section class="wrap page" id="main">
+    <p class="prompt">$ cd {{ "this-page" }}</p>
+    <h1 class="page-title">404</h1>
+    <p class="page-sub">cd: no such file or directory — this page doesn't exist (anymore).</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="{{ site.Home.Permalink }}">Back to home page <span aria-hidden="true">→</span></a>
+      <a class="btn btn-ghost" href="{{ "writing/" | relURL }}">Writing</a>
     </div>
-
-  </div>
+  </section>
 {{ end }}

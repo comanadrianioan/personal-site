@@ -1,13 +1,17 @@
-{{/* /writing/: compact date + title list, or an empty-state line while there are no posts. */}}
+{{/* /writing/: post list, or an empty-state card while there are no posts. */}}
 {{ define "main" }}
-  <p class="prompt">$ ls writing/</p>
-  {{ with .RegularPages }}
-    <ul class="ls">
-      {{ range . }}
-        <li><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006-01-02" }}</time> <a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-      {{ end }}
-    </ul>
-  {{ else }}
-    <p class="empty">(empty — first post coming soon)</p>
-  {{ end }}
+  <section class="wrap page" id="main">
+    <p class="prompt">$ ls writing/</p>
+    <h1 class="page-title">Writing</h1>
+    <p class="page-sub">Notes on Java, cloud-native systems and generative AI.</p>
+    {{ with .RegularPages }}
+      <ul class="ls post-list">
+        {{ range . }}
+          <li><a class="post-row" href="{{ .RelPermalink }}"><span class="post-row-title">{{ .Title }}</span><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time></a></li>
+        {{ end }}
+      </ul>
+    {{ else }}
+      <div class="empty-card"><p class="empty">No posts yet — first post coming soon.</p></div>
+    {{ end }}
+  </section>
 {{ end }}
