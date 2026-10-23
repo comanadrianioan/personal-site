@@ -1,0 +1,18 @@
+{{/* Overrides the theme footer: the theme always prints its own credit line, even with `copyright` set. */}}
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="copyright copyright--user">
+      <span>© {{ now.Year }} Adrian-Ioan Coman</span>
+    </div>
+  </div>
+</footer>
+
+{{ $menu := resources.Get "js/menu.js" | js.Build }}
+{{ $cp := resources.Get "js/code.js" | js.Build }}
+
+{{ $bundle := slice $menu $cp | resources.Concat "bundle.js" | resources.Minify }}
+
+<script type="text/javascript" src="{{ $bundle.RelPermalink }}"></script>
+
+<!-- Extended footer section-->
+{{ partial "extended_footer.html" . }}

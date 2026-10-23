@@ -88,5 +88,19 @@ check_banned
 assert_cmd "drafts are git-ignored" git check-ignore -q content/writing/drafts/example.md
 assert_cmd "docs/ is git-ignored" git check-ignore -q docs/superpowers/specs/x.md
 
+# --- Task 2 ---
+assert_contains "$PLAIN/index.html" 'personal-site/terminal\.css'
+assert_contains "$PLAIN/index.html" 'personal-site/style\.css'
+assert_contains "$PLAIN/index.html" "© $(date +%Y) Adrian-Ioan Coman"
+assert_not_contains "$PLAIN/index.html" 'panr'
+for img in favicon.png apple-touch-icon.png og-image.png; do
+  assert_cmd "own $img (not the theme's)" cmp -s "static/$img" "$PLAIN/$img"
+done
+if command -v sips >/dev/null; then
+  assert_cmd "og-image is 1200x627" bash -c 'sips -g pixelWidth -g pixelHeight static/og-image.png | tr -d " " | grep -c -E "pixelWidth:1200|pixelHeight:627" | grep -qx 2'
+else
+  skip "og-image size (no sips on this machine)"
+fi
+
 # ---------------------------------------------------------------- result
 if [ "$FAILS" -eq 0 ]; then echo "ALL CHECKS PASSED"; else echo "$FAILS CHECK(S) FAILED"; exit 1; fi

@@ -1,0 +1,6 @@
+/* Colour scheme for the Terminal theme (GitHub-dark, green accent) — see docs mockup option B. */
+:root {
+  --background: #0e1116;
+  --foreground: #c9d1d9;
+  --accent: #3fb950;
+}
