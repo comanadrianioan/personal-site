@@ -1,4 +1,4 @@
-{{/* Home: name, role and intro beside a terminal window, then the latest posts only when there are any. */}}
+{{/* Home: one screen with name, role and intro beside a terminal window; the latest posts follow only when there are any. */}}
 {{ define "main" }}
   <div class="hero-band">
   <section class="hero wrap" id="main">
@@ -31,39 +31,12 @@
   </section>
   </div>
 
-  {{/* Below the fold: a short work history from the About page, then writing. Heading on the left, content on the right. */}}
-  {{ with site.GetPage "/about" }}
-    <section class="home-section wrap">
-      <h2>Experience</h2>
-      <div>
-        <ul class="entries">
-          {{ range .Params.experience }}
-            <li>
-              <h3>{{ .company }}{{ with .years }} <span class="current">{{ . }}</span>{{ end }}</h3>
-              <p class="roles">{{ delimit (apply .roles "index" "." "title") ", " }}</p>
-              {{ with .note }}<p>{{ . }}</p>{{ end }}
-            </li>
-          {{ end }}
-        </ul>
-        <p><a href="{{ .RelPermalink }}">Education, skills and more on the About page</a></p>
-      </div>
-    </section>
-  {{ end }}
-
   {{ with first 5 (where site.RegularPages "Type" "writing") }}
     <section class="recent home-section wrap">
-      <h2>Writing</h2>
+      <h2>Latest writing</h2>
       <div>
         {{ partial "post-list.html" . }}
         <p><a href="{{ "writing/" | relURL }}">All posts</a></p>
-      </div>
-    </section>
-  {{ else }}
-    <section class="home-section wrap">
-      <h2>Writing</h2>
-      <div>
-        <p class="lead-in">The first post is on its way: notes on generative AI, Go and the infrastructure in between.</p>
-        <p><a href="{{ site.Params.links.linkedin }}">Follow on LinkedIn</a> to catch it when it's out.</p>
       </div>
     </section>
   {{ end }}

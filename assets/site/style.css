@@ -110,6 +110,9 @@ code, pre, kbd { font-family: var(--mono); }
     repeating-linear-gradient(to bottom, transparent 0 3px, color-mix(in srgb, var(--ink) 2.5%, transparent) 3px 4px),
     var(--band);
   border-bottom: 1px solid var(--rule);
+  /* The band fills the first screen below the top bar. */
+  min-height: calc(100svh - 3.75rem - 1px);
+  display: flex; align-items: center;
 }
 .hero {
   display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
@@ -234,9 +237,7 @@ code, pre, kbd { font-family: var(--mono); }
 .hero-band + .home-section::before { display: none; }
 .home-section::before { content: ""; position: absolute; top: 0; inset-inline: 1.5rem; border-top: 1px solid var(--rule); }
 .home-section h2 { font-size: 1.25rem; }
-.home-section .entries li:last-child { margin-bottom: 1.5rem; }
 .home-section > div > p:last-child { margin-bottom: 0; }
-.lead-in { font-size: 1.125rem; color: var(--ink-2); }
 .home-section:last-child { padding-bottom: 5rem; }
 @media (max-width: 860px) {
   .home-section { grid-template-columns: minmax(0, 1fr); padding-block: 2.5rem; }
