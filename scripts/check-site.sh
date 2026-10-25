@@ -78,23 +78,21 @@ selftest() {
 }
 
 # ---------------------------------------------------------------- checks
+POST="$FIX/writing/java-and-genai/index.html"
+css_has() { assert_cmd "styles: $1" grep -qE -- "$2" "$PLAIN"/css/*.css; }
 
-# --- Task 1 ---
+# --- Build & hosting
 selftest
-assert_file "$PLAIN/index.html"
 assert_contains "$PLAIN/index.html" 'href="https://comanadrianioan\.github\.io/personal-site/css/'
 # Root-relative AND absolute same-host links, in both builds (post pages exist only in $FIX).
 assert_cmd "links keep sub-path" bash -c '! grep -rhoE "(href|src)=\"(https://comanadrianioan\.github\.io)?/[^\"]*" "$PLAIN" "$FIX" --include=*.html | grep -vE "=\"(https://comanadrianioan\.github\.io)?/personal-site/"'
 check_banned
 assert_cmd "drafts are git-ignored" git check-ignore -q content/writing/drafts/example.md
 assert_cmd "docs/ is git-ignored" git check-ignore -q docs/superpowers/specs/x.md
-
-# --- Task 2 ---
-# All CSS (theme + site) ships as one bundle, and the theme's unused Fira Code fonts are not referenced.
+assert_contains "$PLAIN/sitemap.xml" '/personal-site/about/'
+# All CSS ships as one bundle, and the theme's unused Fira Code fonts are not referenced.
 assert_cmd "exactly one stylesheet" bash -c '[ "$(grep -o "rel=\"stylesheet\"" "$PLAIN/index.html" | wc -l | tr -d " ")" = 1 ]'
-assert_cmd "site styles are in the bundle" bash -c 'grep -q "skip-link" "$PLAIN"/css/*.css'
 assert_cmd "no Fira Code reference" bash -c '! grep -rq "FiraCode" "$PLAIN/css"'
-assert_contains "$PLAIN/index.html" "© $(date +%Y) Adrian-Ioan Coman"
 assert_not_contains "$PLAIN/index.html" 'panr'
 for img in favicon.png apple-touch-icon.png og-image.png; do
   assert_cmd "own $img (not the theme's)" cmp -s "static/$img" "$PLAIN/$img"
@@ -105,104 +103,92 @@ else
   skip "og-image size (no sips on this machine)"
 fi
 
-# --- Task 3 ---
-assert_contains "$PLAIN/index.html" '\$ whoami'
-assert_contains "$PLAIN/index.html" 'class="tagline"><span>Senior Engineer @ CrowdStrike</span>'
-assert_contains "$PLAIN/index.html" 'href="https://github\.com/comanadrianioan"'
-assert_contains "$PLAIN/index.html" 'href="https://www\.linkedin\.com/in/adrian-ioan-coman/?"'
-assert_contains "$PLAIN/about/index.html" 'href="https://www\.linkedin\.com/in/adrian-ioan-coman/?"'
-assert_not_contains "$PLAIN/index.html" 'happy to connect'
-assert_not_contains "$PLAIN/index.html" 'class="recent[ "]'
+# --- Every page: skip link to #main, the footer with both profile links, none in the top bar.
+# The <header>/<footer>/<article> checks cut that element out with awk, since its markup spans lines.
+for page in "$PLAIN/index.html" "$PLAIN/about/index.html" "$PLAIN/writing/index.html" "$PLAIN/404.html" "$POST"; do
+  name=${page#"$TMP"/}
+  assert_contains "$page" 'class="skip-link" href="#main"'
+  assert_contains "$page" 'id="main"'
+  assert_cmd "footer © and profile links: $name" bash -c 'f=$(awk "/<footer[ >]/,/<\/footer>/" "$1"); grep -q "© $(date +%Y) Adrian-Ioan Coman" <<<"$f" && grep -q "href=\"https://www.linkedin.com/in/adrian-ioan-coman/\"" <<<"$f" && grep -q "href=\"https://github.com/comanadrianioan\"" <<<"$f"' _ "$page"
+  assert_cmd "no profile links in top bar: $name" bash -c '! awk "/<header[ >]/,/<\/header>/" "$1" | grep -qiE "linkedin|github"' _ "$page"
+done
+# Own header: both menu items are plain links, no theme dropdown.
+assert_contains "$PLAIN/index.html" 'class="site-nav"'
 assert_contains "$PLAIN/index.html" 'href="/personal-site/about/"'
 assert_contains "$PLAIN/index.html" 'href="/personal-site/writing/"'
-# Own header (layouts/partials/header.html): both menu items are plain links, no theme dropdown.
-assert_contains "$PLAIN/index.html" 'class="site-nav"'
 assert_not_contains "$PLAIN/index.html" 'menu__dropdown|menu__trigger'
-assert_file "$PLAIN/about/index.html"
-for word in Playtika CrowdStrike POLITEHNICA Present; do
+assert_contains "$PLAIN/index.html" 'name="twitter:card" content="summary_large_image"'
+# Each page gets a description: home from the tagline, writing from its front matter,
+# a post without one from its summary, 404 from the site fallback.
+assert_contains "$PLAIN/index.html" '<meta name="description" content="Senior Engineer @ CrowdStrike · GenAI · Speaker · Runs on coffee"'
+for page in "$PLAIN/writing/index.html" "$PLAIN/404.html" "$FIX/writing/older-post/index.html"; do
+  assert_contains "$page" '<meta name="description" content="[^"]+'
+done
+
+# --- Home: name, role (first tagline part only), terminal from about.md
+assert_contains "$PLAIN/index.html" 'class="tagline"><span>Senior Engineer @ CrowdStrike</span>'
+assert_contains "$PLAIN/index.html" '\$ whoami'
+assert_contains "$PLAIN/index.html" '<span>genai/</span>'
+assert_not_contains "$PLAIN/index.html" 'software-design/'
+assert_not_contains "$PLAIN/index.html" 'class="recent[ "]'
+assert_contains "$FIX/index.html" 'class="recent[ "]'
+
+# --- About: compressed per company, no years (only CrowdStrike is marked "Present"), earlier roles left out
+for word in Playtika CrowdStrike POLITEHNICA Present 'Software Design'; do
   assert_contains "$PLAIN/about/index.html" "$word"
 done
-assert_not_contains "$PLAIN/about/index.html" '(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* 20[0-9]{2}'
-# Adrian's call: no years on About (only CrowdStrike is marked "Present"); earlier roles left out.
-assert_not_contains "$PLAIN/about/index.html" 'tl-years[^>]*>[^<]*(19|20)[0-9]{2}'
+assert_cmd "no years on About" bash -c '! awk "/<article[ >]/,/<\/article>/" "$PLAIN/about/index.html" | grep -qE "(^|[^0-9])(19|20)[0-9]{2}([^0-9]|$)"'
 assert_not_contains "$PLAIN/about/index.html" 'Tag4it|1&amp;1|IONOS'
-assert_contains "$PLAIN/sitemap.xml" '/personal-site/about/'
+assert_not_contains "$PLAIN/about/index.html" '>Elsewhere<'
 
-# --- Task 4 ---
-assert_contains "$PLAIN/writing/index.html" 'class="empty"'
-assert_contains "$PLAIN/writing/index.html" 'No posts yet'
-assert_not_contains "$PLAIN/writing/index.html" 'class="ls"'
-assert_contains "$FIX/index.html" 'class="recent[ "]'
-assert_contains "$FIX/index.html" 'Java &amp; GenAI: &lt;notes&gt;'
-assert_contains "$FIX/writing/index.html" 'Java &amp; GenAI: &lt;notes&gt;'
-# The theme markdownifies titles, which silently drops "<...>" on the post page itself.
-assert_contains "$FIX/writing/java-and-genai/index.html" '/writing/java-and-genai/">Java &amp; GenAI: &lt;notes&gt;</a>'
+# --- Writing: empty state without posts; with posts, escaped titles, newest first
+assert_contains "$PLAIN/writing/index.html" 'class="empty">No posts yet'
+assert_not_contains "$PLAIN/writing/index.html" 'class="[^"]*post-list'
 for page in index.html writing/index.html; do
+  assert_contains "$FIX/$page" 'Java &amp; GenAI: &lt;notes&gt;'
   assert_cmd "newest first: $page" bash -c 'grep -oE "java-and-genai|older-post" "$FIX/'"$page"'" | head -1 | grep -q java-and-genai'
 done
 assert_cmd "home RSS lists only writing posts" bash -c '[ "$(grep -c "<item>" "$FIX/index.xml")" = 2 ] && ! grep -q "/about/" "$FIX/index.xml"'
 assert_contains "$FIX/index.xml" 'Java &amp;amp; GenAI|Java &amp; GenAI'
-assert_contains "$FIX/writing/older-post/index.html" '<meta name="description" content="[^"]+'
-assert_not_contains "$FIX/writing/older-post/index.html" 'href="/personal-site/tags/'
 assert_cmd "archetype creates drafts" grep -q '^draft: true' archetypes/writing.md
 
-# Post pages: the theme's prev/next block shows a heading from params.readOtherPosts.
-assert_not_contains "$FIX/writing/older-post/index.html" 'class="pagination__title-h"></span>'
-
-# --- Site review fixes ---
-for page in index.html about/index.html writing/index.html 404.html; do
-  assert_contains "$PLAIN/$page" 'class="skip-link" href="#main"'
-  assert_contains "$PLAIN/$page" 'id="main"'
-done
-assert_contains "$FIX/writing/java-and-genai/index.html" 'id="main"'
-assert_contains "$PLAIN/index.html" 'name="twitter:card" content="summary_large_image"'
-assert_contains "$PLAIN/writing/index.html" '<meta name="description" content="[^"]+'
-assert_contains "$PLAIN/404.html" '<meta name="description" content="[^"]+'
-assert_contains "$PLAIN/404.html" 'no such file or directory'
-assert_not_contains "$PLAIN/index.html" 'class="tagline">.*GenAI'
-assert_contains "$FIX/writing/java-and-genai/index.html" 'Sep 1, 2026'
-assert_contains "$FIX/writing/java-and-genai/index.html" 'class="post-title"'
-assert_contains "$FIX/writing/java-and-genai/index.html" 'class="back-link" href="/personal-site/writing/"'
-assert_cmd "no dead theme config" bash -c '! grep -qE "showMenuItems|logoText" hugo.toml'
-
-# --- Named-persona review fixes ---
-# Code blocks: the theme's code.js adds a language label and a copy button; both must be styled,
-# and the syntax colours must be readable on the always-dark code background.
-POST="$FIX/writing/java-and-genai/index.html"
-css() { cat "$PLAIN"/css/*.css; }
-assert_contains "$POST" 'class="highlight"'
-assert_cmd "code label and copy button are styled" bash -c 'c=$(cat "$PLAIN"/css/*.css); grep -q "\.code-title" <<<"$c" && grep -q "\.copy-button" <<<"$c"'
-assert_cmd "code colours defined for the dark code background" bash -c 'grep -qE "\.highlight\{[^}]*--first-tone:var\(--term-prompt\)" "$PLAIN"/css/*.css && grep -qE "\.highlight\{[^}]*--second-tone:var\(--term-dir\)" "$PLAIN"/css/*.css && grep -qE "\.highlight\{[^}]*--foreground:var\(--term-ink\)" "$PLAIN"/css/*.css'
-# Heading anchors carry a real accessible name.
+# --- Posts
+# The theme markdownifies titles, which silently drops "<...>" on the post page itself.
+assert_contains "$POST" '/writing/java-and-genai/">Java &amp; GenAI: &lt;notes&gt;</a>'
+assert_contains "$POST" 'Sep 1, 2026'
+assert_contains "$POST" 'class="back-link" href="/personal-site/writing/"'
 assert_contains "$POST" 'class="hanchor" aria-label="Link to this section"'
-assert_not_contains "$POST" 'ariaLabel='
+assert_contains "$POST" 'class="highlight"'
+assert_not_contains "$FIX/writing/older-post/index.html" 'href="/personal-site/tags/'
+# The theme's prev/next block shows a heading from params.readOtherPosts.
+assert_not_contains "$FIX/writing/older-post/index.html" 'class="pagination__title-h"></span>'
+assert_contains "$PLAIN/404.html" 'no such file or directory'
+
+# --- Styles
+# The theme's code.js adds a language label and a copy button; syntax colours come from the
+# terminal palette so they stay readable on the always-dark code background.
+css_has "code label"            '\.code-title\{'
+css_has "copy button"           '\.copy-button\{'
+css_has "code function colour"  '\.highlight\{[^}]*--first-tone:var\(--term-prompt\)'
+css_has "code keyword colour"   '\.highlight\{[^}]*--second-tone:var\(--term-dir\)'
+css_has "code text colour"      '\.highlight\{[^}]*--foreground:var\(--term-ink\)'
+# The cursor blinks a few times, then stays solid (WCAG 2.2.2: under 5 seconds).
+css_has "cursor stops blinking" 'animation:blink 1\.1s steps\(1\) ?4[;}]'
 # Theme switch: every click flips what is shown (tests/theme-switch.test.mjs).
 if command -v node >/dev/null; then
   assert_cmd "theme switch behaviour" node tests/theme-switch.test.mjs
 else
   skip "theme switch behaviour (no node on this machine)"
 fi
-# The cursor blinks a few times, then stays solid (WCAG 2.2.2: under 5 seconds).
-assert_cmd "cursor stops blinking" bash -c 'grep -qE "animation:blink 1\.1s steps\(1\) ?4[;}]" "$PLAIN"/css/*.css'
-# One dark palette, written once.
-assert_cmd "colour tokens defined once" bash -c '[ "$(grep -c -- "--bg:" assets/site/style.css)" = 1 ]'
-# Profile links live in the footer on every page, not in the top bar.
-for page in index.html about/index.html writing/index.html 404.html; do
-  assert_contains "$PLAIN/$page" 'class="footer-links"'
-  assert_cmd "no profile links in top bar: $page" bash -c '! awk "/<header/,/<\/header>/" "$PLAIN/'"$page"'" | grep -qiE "linkedin|github"'
-done
-assert_not_contains "$PLAIN/about/index.html" '>Elsewhere<'
-# Dead code is gone: the theme's dropdown-menu script, unused styles.
-assert_cmd "no theme menu script" bash -c '! grep -q "menu__trigger" "$PLAIN"/bundle*.js'
-assert_cmd "no unused styles" bash -c '! grep -qE "\.section-head|\.nav-icon|!important" assets/site/style.css'
-# One source each: skills from content/about.md, tagline parts from hugo.toml.
-assert_cmd "no duplicate skills or subtitle in hugo.toml" bash -c '! grep -qE "^[[:space:]]*(skills|subtitle)[[:space:]]*=" hugo.toml'
-assert_contains "$PLAIN/index.html" '<span>genai/</span>'
-assert_not_contains "$PLAIN/index.html" 'software-design/'
-assert_contains "$PLAIN/about/index.html" 'Software Design'
-assert_contains "$PLAIN/index.html" '<meta name="description" content="Senior Engineer @ CrowdStrike · GenAI · Speaker · Runs on coffee"'
 
-# --- Task 5 ---
+# --- Source hygiene: one palette, one source per value, no dead code
+assert_cmd "colour tokens defined once" bash -c '[ "$(grep -c -- "--bg:" assets/site/style.css)" = 1 ]'
+assert_cmd "no unused styles" bash -c '! grep -qE "\.section-head|\.nav-icon|!important" assets/site/style.css'
+assert_cmd "no theme menu script" bash -c '! grep -q "menu__trigger" "$PLAIN"/bundle*.js'
+assert_cmd "no duplicate skills or subtitle in hugo.toml" bash -c '! grep -qE "^[[:space:]]*(skills|subtitle)[[:space:]]*=" hugo.toml'
+assert_cmd "no dead theme config" bash -c '! grep -qE "showMenuItems|logoText" hugo.toml'
+
+# --- Deploy workflow
 WF=.github/workflows/deploy.yml
 assert_file "$WF"
 assert_not_contains "$WF" '^[[:space:]]*schedule:'

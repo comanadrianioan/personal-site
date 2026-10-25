@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 
 const src = readFileSync(new URL("../assets/site/theme.js", import.meta.url), "utf8");
 
-function page(systemDark, saved) {
+function page(systemDark, saved, { storageThrows = false, noButton = false } = {}) {
   const store = new Map(saved ? [["theme", saved]] : []);
   const root = { dataset: saved ? { theme: saved } : {} };
   const attrs = {};
@@ -17,16 +17,18 @@ function page(systemDark, saved) {
     addEventListener(t, f) { this.listeners[t] = f; },
     click() { this.listeners.click(); },
   };
-  const mql = { matches: systemDark, addEventListener() {} };
+  const mql = { matches: systemDark, addEventListener(t, f) { this.onchange = f; } };
   const ctx = {
-    document: { documentElement: root, querySelector: (s) => (s === ".theme-toggle" ? btn : null) },
-    localStorage: { getItem: (k) => store.get(k) ?? null, setItem: (k, v) => store.set(k, v), removeItem: (k) => store.delete(k) },
+    document: { documentElement: root, querySelector: (s) => (s === ".theme-toggle" && !noButton ? btn : null) },
+    localStorage: storageThrows
+      ? { getItem() { throw new Error("blocked"); }, setItem() { throw new Error("blocked"); }, removeItem() { throw new Error("blocked"); } }
+      : { getItem: (k) => store.get(k) ?? null, setItem: (k, v) => store.set(k, v), removeItem: (k) => store.delete(k) },
     matchMedia: () => mql,
   };
   ctx.window = ctx;
   vm.runInNewContext(src, ctx);
-  const shown = () => root.dataset.theme || (systemDark ? "dark" : "light");
-  return { btn, root, store, attrs, shown };
+  const shown = () => root.dataset.theme || (mql.matches ? "dark" : "light");
+  return { btn, root, store, attrs, shown, mql };
 }
 
 for (const systemDark of [false, true]) {
@@ -52,5 +54,19 @@ const saved = page(false, "dark");
 assert.equal(saved.attrs["aria-label"], "Switch to light theme", "saved dark: label offers light");
 saved.btn.click();
 assert.equal(saved.shown(), "light", "saved dark on a light OS: click shows light");
+
+// A page without the switch: the script does nothing and does not throw.
+assert.doesNotThrow(() => page(false, null, { noButton: true }), "no switch on the page: no error");
+
+// Storage blocked (private mode, site data off): clicks still flip the theme for this visit.
+const blocked = page(false, null, { storageThrows: true });
+assert.doesNotThrow(() => blocked.btn.click(), "storage blocked: click does not throw");
+assert.equal(blocked.shown(), "dark", "storage blocked: click still switches to dark");
+
+// The system setting changes while the visitor follows it: the label follows too.
+const follows = page(false);
+follows.mql.matches = true;
+follows.mql.onchange();
+assert.equal(follows.attrs["aria-label"], "Switch to light theme", "system turns dark: label offers light");
 
 console.log("theme switch: all assertions passed");
