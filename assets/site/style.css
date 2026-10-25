@@ -43,8 +43,10 @@
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   color-scheme: light;
 }
+/* Dark palette: by system setting unless the visitor picked light, or always when they picked dark.
+   The theme switch sets data-theme on <html>; without it the system setting decides. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #14171b;
     --surface: #1b1f24;
     --band: #1a1d22;
@@ -62,6 +64,24 @@
     --term-bar: #171a1f;
     color-scheme: dark;
   }
+}
+:root[data-theme="dark"] {
+  --bg: #14171b;
+  --surface: #1b1f24;
+  --band: #1a1d22;
+  --ink: #e9ecef;
+  --ink-2: #c3c9d1;
+  --muted: #9aa3ae;
+  --rule: #2b3037;
+  --link: #8fb0ff;
+  --accent: #3fb950;
+  --selection-ink: #0e1014;
+  --btn-bg: #e9ecef;
+  --btn-ink: #14171b;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 40px -16px rgba(0, 0, 0, 0.6);
+  --term-bg: #0e1014;
+  --term-bar: #171a1f;
+  color-scheme: dark;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -110,6 +130,13 @@ code, pre, kbd { font-family: var(--mono); }
 .nav-links a:hover { color: var(--ink); }
 .nav-links a[aria-current="page"] { color: var(--ink); background: color-mix(in srgb, var(--accent) 14%, transparent); }
 .nav-icon { justify-content: center; min-width: 2.5rem; padding-inline: 0 !important; }
+/* Theme switch: an icon button that cycles system, light, dark. Shown only once its script runs. */
+.theme-toggle { display: inline-flex; align-items: center; min-height: 2.5rem; border: 0; border-radius: 6px; background: none; color: var(--muted); font: inherit; cursor: pointer; }
+.theme-toggle:hover { color: var(--ink); }
+.theme-toggle svg { display: none; }
+.theme-toggle[data-mode="system"] .i-system,
+.theme-toggle[data-mode="light"] .i-light,
+.theme-toggle[data-mode="dark"] .i-dark { display: block; }
 .nav-icon svg, .btn svg { width: 1.125rem; height: 1.125rem; flex: none; }
 
 /* ---- hero: a full-width band, a shade off the page, with faint scanlines like an old terminal screen */

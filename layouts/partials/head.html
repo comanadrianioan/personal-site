@@ -1,6 +1,9 @@
 {{/* Theme v4.2.6 head.html; changed: one CSS bundle, a description fallback, and the large link-preview card. */}}
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{{/* Applies a saved theme choice before the page draws, so it never flashes the wrong theme. */}}
+<script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+{{ with resources.Get "site/theme.js" | minify | fingerprint }}<script src="{{ .RelPermalink }}" defer></script>{{ end }}
 {{- $desc := cond .IsHome $.Site.Params.Subtitle (.Description | default (.Summary | plainify)) | default $.Site.Params.Subtitle -}}
 <meta name="description" content="{{ $desc }}" />
 <meta name="keywords" content="{{ with .Params.Keywords }}{{ delimit . ", " }}{{ else }}{{ $.Site.Params.Keywords }}{{ end }}" />
