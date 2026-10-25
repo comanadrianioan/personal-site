@@ -112,18 +112,19 @@ code, pre, kbd { font-family: var(--mono); }
   background:
     repeating-linear-gradient(to bottom, transparent 0 3px, color-mix(in srgb, var(--ink) 2.5%, transparent) 3px 4px),
     var(--band);
-  border-bottom: 1px solid var(--rule);
-  /* The band fills the first screen below the top bar. */
-  min-height: calc(100svh - 3.75rem - 1px);
   display: flex; align-items: center;
 }
+/* On the home page the band stretches to fill the screen between the top bar and the footer. */
+.content:has(> .hero-band) { display: flex; flex-direction: column; }
+.content > .hero-band { flex: 1 0 auto; }
+.content > .hero-band:not(:last-child) { border-bottom: 1px solid var(--rule); }
 .hero {
-  display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   gap: clamp(2.5rem, 6vw, 4.5rem); align-items: center;
-  padding-block: clamp(3rem, 8vw, 5rem) clamp(3rem, 7vw, 4.5rem);
+  padding-block: clamp(2.5rem, 6vw, 4rem);
 }
-.hero-title { font-size: clamp(2.5rem, 5.5vw, 3.75rem); line-height: 1.04; letter-spacing: -0.035em; font-weight: 700; }
-.tagline { margin: 0.75rem 0 0; color: var(--ink-2); font-size: 1.1875rem; font-weight: 500; }
+.hero-title { font-size: clamp(2.25rem, 4.2vw, 3.25rem); line-height: 1.08; letter-spacing: -0.03em; font-weight: 700; }
+.tagline { margin: 0.5rem 0 0; color: var(--ink-2); font-size: 1.25rem; font-weight: 500; }
 .lede { margin-top: 1.25rem; max-width: 33rem; color: var(--ink-2); font-size: 1.125rem; line-height: 1.6; }
 .lede p { margin: 0; }
 
