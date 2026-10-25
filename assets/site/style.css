@@ -251,7 +251,10 @@ code, pre, kbd { font-family: var(--mono); }
 
 /* ---- footer */
 .site-footer { border-top: 1px solid var(--rule); }
-.footer-inner { display: flex; align-items: center; min-height: 4.5rem; color: var(--muted); font-size: 0.875rem; }
+.footer-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1.5rem; min-height: 4.5rem; padding-block: 1rem; color: var(--muted); font-size: 0.875rem; }
+.footer-links { display: flex; gap: 0.25rem 1.25rem; }
+.footer-links a { display: inline-flex; align-items: center; min-height: 2.5rem; color: var(--muted); text-decoration: none; }
+.footer-links a:hover { color: var(--ink); text-decoration: underline; }
 
 /* ---- small screens */
 @media (max-width: 860px) {
