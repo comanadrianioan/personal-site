@@ -74,7 +74,7 @@ body {
 }
 .container.full { min-height: 100vh; display: flex; flex-direction: column; }
 .content { flex: 1; }
-.wrap { width: 100%; max-width: 68rem; margin-inline: auto; padding-inline: 1.5rem; }
+.wrap { width: 100%; max-width: 78rem; margin-inline: auto; padding-inline: 1.5rem; }
 
 h1, h2, h3 { margin: 0; color: var(--ink); font-weight: 650; line-height: 1.2; letter-spacing: -0.015em; }
 p { margin: 0 0 1rem; }
@@ -123,9 +123,9 @@ code, pre, kbd { font-family: var(--mono); }
   gap: clamp(2.5rem, 6vw, 4.5rem); align-items: center;
   padding-block: clamp(2.5rem, 6vw, 4rem);
 }
-.hero-title { font-size: clamp(2.25rem, 4.2vw, 3.25rem); line-height: 1.08; letter-spacing: -0.03em; font-weight: 700; }
-.tagline { margin: 0.5rem 0 0; color: var(--ink-2); font-size: 1.25rem; font-weight: 500; }
-.lede { margin-top: 1.25rem; max-width: 33rem; color: var(--ink-2); font-size: 1.125rem; line-height: 1.6; }
+.hero-title { font-size: clamp(2.5rem, 4.6vw, 3.875rem); line-height: 1.08; letter-spacing: -0.03em; font-weight: 700; }
+.tagline { margin: 0.6rem 0 0; color: var(--ink-2); font-size: 1.4375rem; font-weight: 500; }
+.lede { margin-top: 1.5rem; max-width: 36rem; color: var(--ink-2); font-size: 1.25rem; line-height: 1.6; }
 .lede p { margin: 0; }
 
 .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
@@ -139,15 +139,19 @@ code, pre, kbd { font-family: var(--mono); }
 .btn-primary { background: var(--btn-bg); border-color: var(--btn-bg); color: var(--btn-ink); }
 .btn-primary:hover { background: color-mix(in srgb, var(--btn-bg) 85%, var(--bg)); border-color: transparent; }
 
+/* Bigger buttons in the hero. */
+.hero .actions { margin-top: 2.25rem; }
+.hero .btn { min-height: 3rem; padding-inline: 1.375rem; font-size: 1rem; }
+
 /* ---- terminal window */
 .term {
   border-radius: 10px; overflow: hidden;
   background: var(--term-bg); color: var(--term-ink);
   box-shadow: var(--shadow); border: 1px solid color-mix(in srgb, var(--term-ink) 10%, transparent);
-  font: 400 0.875rem/1.7 var(--mono);
+  font: 400 0.9375rem/1.75 var(--mono);
 }
 .term-bar { margin: 0; padding: 0.5rem 1rem; background: var(--term-bar); color: var(--term-dim); font-size: 0.75rem; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
-.term-body { padding: 1.125rem 1.25rem 1.375rem; }
+.term-body { padding: 1.375rem 1.5rem 1.625rem; }
 .term-body p { margin: 0; }
 .cmd::first-letter { color: var(--term-prompt); }
 .out { color: var(--term-dim); margin-bottom: 0.6rem !important; }
