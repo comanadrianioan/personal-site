@@ -184,7 +184,8 @@ fi
 # --- Source hygiene: one palette, one source per value, no dead code
 assert_cmd "colour tokens defined once" bash -c '[ "$(grep -c -- "--bg:" assets/site/style.css)" = 1 ]'
 assert_cmd "no unused styles" bash -c '! grep -qE "\.section-head|\.nav-icon|!important" assets/site/style.css'
-assert_cmd "no theme menu script" bash -c '! grep -q "menu__trigger" "$PLAIN"/bundle*.js'
+# The footer's script (the theme's code.js only): it must exist, and not contain the theme's menu.js.
+assert_cmd "no theme menu script" bash -c 'js=$(grep -oE "src=\"/personal-site/[^\"]+\.js\"" "$PLAIN/index.html" | grep -v theme | head -1 | sed -E "s#src=\"/personal-site/##; s#\"##"); [ -n "$js" ] && [ -f "$PLAIN/$js" ] && ! grep -q "menu__trigger" "$PLAIN/$js"'
 assert_cmd "no duplicate skills or subtitle in hugo.toml" bash -c '! grep -qE "^[[:space:]]*(skills|subtitle)[[:space:]]*=" hugo.toml'
 assert_cmd "no dead theme config" bash -c '! grep -qE "showMenuItems|logoText" hugo.toml'
 

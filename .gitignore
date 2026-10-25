@@ -1,6 +1,36 @@
-.superpowers/
-docs/
-public/
-resources/
+# This repository is public: anything below stays on this machine.
+
+# --- Hugo build output and caches
+/public/
+/resources/
 .hugo_build.lock
-content/writing/drafts/
+hugo_stats.json
+
+# --- Local-only content (never published)
+# Unfinished posts; `hugo new` writes new posts here as drafts.
+/content/writing/drafts/
+# Specs, plans and review reports.
+/docs/
+# Agent workspaces and local Claude Code settings.
+/.superpowers/
+/.claude/settings.local.json
+
+# --- Secrets (none are needed to build or deploy; CI uses its own GITHUB_TOKEN)
+.env
+.env.*
+*.pem
+*.key
+
+# --- Test and tooling leftovers
+node_modules/
+coverage/
+*.lcov
+*.log
+
+# --- OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
