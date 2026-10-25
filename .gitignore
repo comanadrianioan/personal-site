@@ -7,7 +7,8 @@
 hugo_stats.json
 
 # --- Local-only content (never published)
-# Unfinished posts; `hugo new` writes new posts here as drafts.
+# Unfinished posts (`hugo new content writing/drafts/<slug>.md`); the repo is public, so
+# `draft: true` alone would not keep them private.
 /content/writing/drafts/
 # Specs, plans and review reports.
 /docs/
