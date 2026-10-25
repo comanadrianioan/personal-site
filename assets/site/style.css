@@ -26,6 +26,7 @@
   --link: #2f5bd3;
   /* Terminal green: the one accent. Deeper in light mode so it keeps 4.5:1 contrast on the light background. */
   --accent: #1a7f37;
+  --selection-ink: #ffffff;
   --btn-bg: #16191d;
   --btn-ink: #ffffff;
   --shadow: 0 1px 2px rgba(22, 25, 29, 0.06), 0 12px 32px -12px rgba(22, 25, 29, 0.18);
@@ -53,6 +54,7 @@
     --rule: #2b3037;
     --link: #8fb0ff;
     --accent: #3fb950;
+    --selection-ink: #0e1014;
     --btn-bg: #e9ecef;
     --btn-ink: #14171b;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 40px -16px rgba(0, 0, 0, 0.6);
@@ -81,7 +83,10 @@ p { margin: 0 0 1rem; }
 a { color: var(--link); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); }
 a:hover { text-decoration-color: currentColor; }
 :focus-visible { outline: 2px solid var(--link); outline-offset: 3px; border-radius: 4px; }
-::selection { background: color-mix(in srgb, var(--link) 25%, transparent); }
+/* Selected text looks like a terminal selection: solid green block, dark text on top
+   (white in light mode, where the green is deeper). Both pairs stay above 4.5:1 contrast. */
+::selection { background: var(--accent); color: var(--selection-ink); }
+.term ::selection { background: var(--term-prompt); color: var(--term-bg); }
 code, pre, kbd { font-family: var(--mono); }
 
 .skip-link { position: absolute; left: 1rem; top: -3.5rem; z-index: 20; padding: 0.6rem 1rem; border-radius: 6px; background: var(--btn-bg); color: var(--btn-ink); text-decoration: none; }
