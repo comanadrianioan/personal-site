@@ -18,6 +18,7 @@
 :root {
   --bg: #f6f7f9;
   --surface: #ffffff;
+  --band: #eceef2;
   --ink: #16191d;
   --ink-2: #3a414b;
   --muted: #5b6470;
@@ -43,6 +44,7 @@
   :root {
     --bg: #14171b;
     --surface: #1b1f24;
+    --band: #1a1d22;
     --ink: #e9ecef;
     --ink-2: #c3c9d1;
     --muted: #9aa3ae;
@@ -58,7 +60,8 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+/* Everything is sized in rem, so on wide screens the whole layout scales up (16px up to 20px). */
+html { -webkit-text-size-adjust: 100%; font-size: clamp(100%, 0.45vw + 0.6rem, 125%); }
 body {
   margin: 0;
   background: var(--bg);
@@ -101,7 +104,13 @@ code, pre, kbd { font-family: var(--mono); }
 .nav-icon { justify-content: center; min-width: 2.5rem; padding-inline: 0 !important; }
 .nav-icon svg, .btn svg { width: 1.125rem; height: 1.125rem; flex: none; }
 
-/* ---- hero */
+/* ---- hero: a full-width band, a shade off the page, with faint scanlines like an old terminal screen */
+.hero-band {
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 3px, color-mix(in srgb, var(--ink) 2.5%, transparent) 3px 4px),
+    var(--band);
+  border-bottom: 1px solid var(--rule);
+}
 .hero {
   display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
   gap: clamp(2.5rem, 6vw, 4.5rem); align-items: center;
@@ -221,7 +230,8 @@ code, pre, kbd { font-family: var(--mono); }
   display: grid; grid-template-columns: minmax(0, 14rem) minmax(0, 42rem); gap: 1rem 3rem;
   padding-block: 3rem; position: relative;
 }
-/* The divider lines up with the text, not the padded box. */
+/* The divider lines up with the text, not the padded box; none under the hero band. */
+.hero-band + .home-section::before { display: none; }
 .home-section::before { content: ""; position: absolute; top: 0; inset-inline: 1.5rem; border-top: 1px solid var(--rule); }
 .home-section h2 { font-size: 1.25rem; }
 .home-section .entries li:last-child { margin-bottom: 1.5rem; }
