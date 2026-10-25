@@ -4,7 +4,8 @@
 {{/* Applies a saved theme choice before the page draws, so it never flashes the wrong theme. */}}
 <script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
 {{ with resources.Get "site/theme.js" | minify | fingerprint }}<script src="{{ .RelPermalink }}" defer></script>{{ end }}
-{{- $desc := cond .IsHome $.Site.Params.Subtitle (.Description | default (.Summary | plainify)) | default $.Site.Params.Subtitle -}}
+{{- $subtitle := delimit site.Params.tagline " · " -}}
+{{- $desc := cond .IsHome $subtitle (.Description | default (.Summary | plainify)) | default $subtitle -}}
 <meta name="description" content="{{ $desc }}" />
 <meta name="keywords" content="{{ with .Params.Keywords }}{{ delimit . ", " }}{{ else }}{{ $.Site.Params.Keywords }}{{ end }}" />
 {{ if .Params.noindex }}

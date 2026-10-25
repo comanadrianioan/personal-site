@@ -4,7 +4,7 @@
   <section class="hero wrap" id="main">
     <div class="hero-text">
       <h1 class="hero-title">{{ site.Title }}</h1>
-      <p class="tagline"><span>{{ index (split site.Params.subtitle " · ") 0 }}</span></p>
+      <p class="tagline"><span>{{ index site.Params.tagline 0 }}</span></p>
       <div class="lede">{{ .Content }}</div>
       <div class="actions">
         <a class="btn btn-primary" href="{{ "about/" | relURL }}">About me</a>
@@ -22,7 +22,7 @@
         <p class="cmd">$ ls ~/work</p>
         <p class="out ls">{{ with site.GetPage "/about" }}{{ range .Params.experience }}<span>{{ index (split (lower .company) " ") 0 }}/</span>{{ end }}{{ end }}</p>
         <p class="cmd">$ ls ~/skills</p>
-        <p class="out ls">{{ range site.Params.skills }}<span>{{ . }}/</span>{{ end }}</p>
+        <p class="out ls">{{ with site.GetPage "/about" }}{{ range .Params.skills }}{{ with .dir }}<span>{{ . }}/</span>{{ end }}{{ end }}{{ end }}</p>
         <p class="cmd">$ cat ~/.plan</p>
         <p class="out">Build GenAI infrastructure in Go. Give more talks. Refill coffee.</p>
         <p class="cmd">$ <span class="cursor" aria-hidden="true"></span></p>

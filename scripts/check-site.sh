@@ -130,7 +130,7 @@ assert_contains "$PLAIN/sitemap.xml" '/personal-site/about/'
 
 # --- Task 4 ---
 assert_contains "$PLAIN/writing/index.html" 'class="empty"'
-assert_contains "$PLAIN/writing/index.html" 'first post coming soon'
+assert_contains "$PLAIN/writing/index.html" 'No posts yet'
 assert_not_contains "$PLAIN/writing/index.html" 'class="ls"'
 assert_contains "$FIX/index.html" 'class="recent[ "]'
 assert_contains "$FIX/index.html" 'Java &amp; GenAI: &lt;notes&gt;'
@@ -161,9 +161,46 @@ assert_contains "$PLAIN/404.html" '<meta name="description" content="[^"]+'
 assert_contains "$PLAIN/404.html" 'no such file or directory'
 assert_not_contains "$PLAIN/index.html" 'class="tagline">.*GenAI'
 assert_contains "$FIX/writing/java-and-genai/index.html" 'Sep 1, 2026'
-assert_contains "$FIX/writing/java-and-genai/index.html" '\$ cat writing/java-and-genai\.md'
+assert_contains "$FIX/writing/java-and-genai/index.html" 'class="post-title"'
 assert_contains "$FIX/writing/java-and-genai/index.html" 'class="back-link" href="/personal-site/writing/"'
 assert_cmd "no dead theme config" bash -c '! grep -qE "showMenuItems|logoText" hugo.toml'
+
+# --- Named-persona review fixes ---
+# Code blocks: the theme's code.js adds a language label and a copy button; both must be styled,
+# and the syntax colours must be readable on the always-dark code background.
+POST="$FIX/writing/java-and-genai/index.html"
+css() { cat "$PLAIN"/css/*.css; }
+assert_contains "$POST" 'class="highlight"'
+assert_cmd "code label and copy button are styled" bash -c 'c=$(cat "$PLAIN"/css/*.css); grep -q "\.code-title" <<<"$c" && grep -q "\.copy-button" <<<"$c"'
+assert_cmd "code colours defined for the dark code background" bash -c 'grep -qE "\.highlight\{[^}]*--first-tone:var\(--term-prompt\)" "$PLAIN"/css/*.css && grep -qE "\.highlight\{[^}]*--second-tone:var\(--term-dir\)" "$PLAIN"/css/*.css && grep -qE "\.highlight\{[^}]*--foreground:var\(--term-ink\)" "$PLAIN"/css/*.css'
+# Heading anchors carry a real accessible name.
+assert_contains "$POST" 'class="hanchor" aria-label="Link to this section"'
+assert_not_contains "$POST" 'ariaLabel='
+# Theme switch: every click flips what is shown (tests/theme-switch.test.mjs).
+if command -v node >/dev/null; then
+  assert_cmd "theme switch behaviour" node tests/theme-switch.test.mjs
+else
+  skip "theme switch behaviour (no node on this machine)"
+fi
+# The cursor blinks a few times, then stays solid (WCAG 2.2.2: under 5 seconds).
+assert_cmd "cursor stops blinking" bash -c 'grep -qE "animation:blink 1\.1s steps\(1\) ?4[;}]" "$PLAIN"/css/*.css'
+# One dark palette, written once.
+assert_cmd "colour tokens defined once" bash -c '[ "$(grep -c -- "--bg:" assets/site/style.css)" = 1 ]'
+# Profile links live in the footer on every page, not in the top bar.
+for page in index.html about/index.html writing/index.html 404.html; do
+  assert_contains "$PLAIN/$page" 'class="footer-links"'
+  assert_cmd "no profile links in top bar: $page" bash -c '! awk "/<header/,/<\/header>/" "$PLAIN/'"$page"'" | grep -qiE "linkedin|github"'
+done
+assert_not_contains "$PLAIN/about/index.html" '>Elsewhere<'
+# Dead code is gone: the theme's dropdown-menu script, unused styles.
+assert_cmd "no theme menu script" bash -c '! grep -q "menu__trigger" "$PLAIN"/bundle*.js'
+assert_cmd "no unused styles" bash -c '! grep -qE "\.section-head|\.nav-icon|!important" assets/site/style.css'
+# One source each: skills from content/about.md, tagline parts from hugo.toml.
+assert_cmd "no duplicate skills or subtitle in hugo.toml" bash -c '! grep -qE "^[[:space:]]*(skills|subtitle)[[:space:]]*=" hugo.toml'
+assert_contains "$PLAIN/index.html" '<span>genai/</span>'
+assert_not_contains "$PLAIN/index.html" 'software-design/'
+assert_contains "$PLAIN/about/index.html" 'Software Design'
+assert_contains "$PLAIN/index.html" '<meta name="description" content="Senior Engineer @ CrowdStrike · GenAI · Speaker · Runs on coffee"'
 
 # --- Task 5 ---
 WF=.github/workflows/deploy.yml

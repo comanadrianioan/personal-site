@@ -9,10 +9,8 @@
   </div>
 </footer>
 
-{{ $menu := resources.Get "js/menu.js" | js.Build }}
-{{ $cp := resources.Get "js/code.js" | js.Build }}
-
-{{ $bundle := slice $menu $cp | resources.Concat "bundle.js" | resources.Minify }}
+{{/* Of the theme's scripts only code.js is kept (language label and copy button on code blocks); the own header has no dropdown menus for menu.js. */}}
+{{ $bundle := resources.Get "js/code.js" | js.Build | resources.Minify }}
 
 <script type="text/javascript" src="{{ $bundle.RelPermalink }}"></script>
 

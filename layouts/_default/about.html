@@ -26,12 +26,6 @@
     </ul>
 
     <h2>Skills</h2>
-    <p>{{ delimit .Params.skills ", " }}.</p>
-
-    <h2>Elsewhere</h2>
-    <div class="actions">
-      <a class="btn" href="{{ site.Params.links.linkedin }}">{{ partial "icon-linkedin.html" . }} LinkedIn</a>
-      <a class="btn" href="{{ site.Params.links.github }}">{{ partial "icon-github.html" . }} GitHub</a>
-    </div>
+    <p>{{ delimit (apply .Params.skills "index" "." "name") ", " }}.</p>
   </article>
 {{ end }}

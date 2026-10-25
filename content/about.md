@@ -24,7 +24,14 @@ education:
   - degree: "Bachelor's degree, Computer Science"
     school: "University POLITEHNICA of Bucharest"
     note: "Member of LSAC."
-skills: ["Generative AI", "Java", "Go", "Spring Boot", "Microservices", "Software Design"]
+# Skills: `name` is shown on this page; skills with a `dir` also appear in the home page's `ls ~/skills`.
+skills:
+  - { name: "Generative AI", dir: "genai" }
+  - { name: "Java", dir: "java" }
+  - { name: "Go", dir: "go" }
+  - { name: "Spring Boot", dir: "spring-boot" }
+  - { name: "Microservices", dir: "microservices" }
+  - { name: "Software Design" }
 ---
 
 I'm passionate about exploring new technologies and applying them to real-world problems. Today

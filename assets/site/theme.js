@@ -1,32 +1,34 @@
-// Theme switch: cycles system -> light -> dark. "system" removes the choice and lets
-// prefers-color-scheme decide; the inline script in <head> applies a saved choice early.
+// Theme switch: each click flips what is shown, light <-> dark. A choice that matches the system
+// setting is not stored, so the page goes back to following the system. The inline script in
+// <head> applies a stored choice before the page draws.
 (function () {
   var btn = document.querySelector(".theme-toggle");
   if (!btn) return;
-  var order = ["system", "light", "dark"];
-  var names = { system: "System", light: "Light", dark: "Dark" };
+  var root = document.documentElement;
+  var systemDark = window.matchMedia("(prefers-color-scheme: dark)");
 
-  function render(mode) {
-    var next = order[(order.indexOf(mode) + 1) % order.length];
-    btn.dataset.mode = mode;
-    btn.setAttribute("aria-label", "Theme: " + names[mode] + ". Switch to " + names[next].toLowerCase());
-    btn.title = "Theme: " + names[mode];
+  function system() { return systemDark.matches ? "dark" : "light"; }
+  function shown() { return root.dataset.theme || system(); }
+
+  function render() {
+    var next = shown() === "dark" ? "light" : "dark";
+    btn.dataset.shown = shown();
+    btn.setAttribute("aria-label", "Switch to " + next + " theme");
+    btn.title = "Switch to " + next + " theme";
   }
 
-  function apply(mode) {
-    var root = document.documentElement;
-    if (mode === "system") delete root.dataset.theme;
-    else root.dataset.theme = mode;
-    try {
-      if (mode === "system") localStorage.removeItem("theme");
-      else localStorage.setItem("theme", mode);
-    } catch (e) {}
-    render(mode);
-  }
-
-  render(document.documentElement.dataset.theme || "system");
-  btn.hidden = false;
   btn.addEventListener("click", function () {
-    apply(order[(order.indexOf(btn.dataset.mode) + 1) % order.length]);
+    var next = shown() === "dark" ? "light" : "dark";
+    try {
+      if (next === system()) localStorage.removeItem("theme");
+      else localStorage.setItem("theme", next);
+    } catch (e) {}
+    if (next === system()) delete root.dataset.theme;
+    else root.dataset.theme = next;
+    render();
   });
+  systemDark.addEventListener("change", render);
+
+  render();
+  btn.hidden = false;
 })();
