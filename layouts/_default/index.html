@@ -1,29 +1,30 @@
-{{/* Home: headline + a terminal card, then the latest posts only when there are any. */}}
+{{/* Home: name, role and intro beside a terminal window, then the latest posts only when there are any. */}}
 {{ define "main" }}
   <section class="hero wrap" id="main">
-    <div class="hero-text index-content">
-      <p class="eyebrow"><span class="pulse" aria-hidden="true"></span>Bucharest, Romania</p>
+    <div class="hero-text">
       <h1 class="hero-title">{{ site.Title }}</h1>
-      {{/* Only the role: the terminal card next to it already lists the skills. */}}
       <p class="tagline"><span>{{ index (split site.Params.subtitle " · ") 0 }}</span></p>
       <div class="lede">{{ .Content }}</div>
       <div class="actions">
-        <a class="btn btn-primary" href="{{ "about/" | relURL }}">About me <span aria-hidden="true">→</span></a>
-        <a class="btn btn-ghost" href="{{ site.Params.links.linkedin }}">{{ partial "icon-linkedin.html" . }} LinkedIn</a>
-        <a class="btn btn-ghost" href="{{ site.Params.links.github }}">{{ partial "icon-github.html" . }} GitHub</a>
+        <a class="btn btn-primary" href="{{ "about/" | relURL }}">About me</a>
+        <a class="btn" href="{{ site.Params.links.linkedin }}">{{ partial "icon-linkedin.html" . }} LinkedIn</a>
+        <a class="btn" href="{{ site.Params.links.github }}">{{ partial "icon-github.html" . }} GitHub</a>
       </div>
     </div>
 
+    {{/* Real commands with real output: where I've worked, what I use, what's next. */}}
     <div class="term">
-      <div class="term-bar"><i></i><i></i><i></i><span>adrian@coman — zsh</span></div>
+      <p class="term-bar">adrian@bucharest: ~</p>
       <div class="term-body">
-        <p class="prompt">$ whoami</p>
+        <p class="cmd">$ whoami</p>
         <p class="out">{{ lower site.Title }}</p>
-        <p class="prompt">$ cat role.txt</p>
-        <p class="out">Senior Engineer @ CrowdStrike · GenAI infrastructure</p>
-        <p class="prompt">$ ls skills/</p>
-        <p class="out chips">{{ range site.Params.skills }}<span>{{ . }}</span>{{ end }}</p>
-        <p class="prompt">$ <span class="cursor" aria-hidden="true"></span></p>
+        <p class="cmd">$ ls ~/work</p>
+        <p class="out ls">{{ with site.GetPage "/about" }}{{ range .Params.experience }}<span>{{ index (split (lower .company) " ") 0 }}/</span>{{ end }}{{ end }}</p>
+        <p class="cmd">$ ls ~/skills</p>
+        <p class="out ls">{{ range site.Params.skills }}<span>{{ . }}/</span>{{ end }}</p>
+        <p class="cmd">$ cat ~/.plan</p>
+        <p class="out">Build GenAI infrastructure in Go. Give more talks. Refill coffee.</p>
+        <p class="cmd">$ <span class="cursor" aria-hidden="true"></span></p>
       </div>
     </div>
   </section>
@@ -32,13 +33,9 @@
     <section class="recent wrap section">
       <div class="section-head">
         <h2>Latest writing</h2>
-        <a href="{{ "writing/" | relURL }}">all posts →</a>
+        <a href="{{ "writing/" | relURL }}">All posts</a>
       </div>
-      <ul class="ls post-list">
-        {{ range . }}
-          <li><a class="post-row" href="{{ .RelPermalink }}"><span class="post-row-title">{{ .Title }}</span><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time></a></li>
-        {{ end }}
-      </ul>
+      {{ partial "post-list.html" . }}
     </section>
   {{ end }}
 {{ end }}

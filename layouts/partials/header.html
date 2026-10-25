@@ -1,8 +1,8 @@
-{{/* Overrides the theme header: a sticky, blurred top bar with a terminal-style brand. */}}
+{{/* Overrides the theme header: a sticky top bar with a shell-path brand. */}}
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-nav">
   <div class="wrap nav-inner">
-    <a class="brand" href="{{ site.Home.RelPermalink }}"><span class="brand-tilde">~/</span>adrian-coman<span class="caret" aria-hidden="true"></span></a>
+    <a class="brand" href="{{ site.Home.RelPermalink }}"><span class="brand-tilde">~/</span>adrian-coman</a>
     <nav class="nav-links" aria-label="Main">
       {{ range site.Menus.main }}
         <a href="{{ .URL }}"{{ if or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }} aria-current="page"{{ end }}>{{ .Name }}</a>

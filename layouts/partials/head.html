@@ -15,13 +15,9 @@
 
 {{ template "_internal/google_analytics.html" . }}
 
-{{/* One bundle: the theme's CSS (minus its Fira Code font-face and empty colour placeholder), then the site's styles last so they win. */}}
 {{ $parts := slice }}
-{{ range resources.Match "css/*.css" }}
-  {{ if not (in (slice "fonts.css" "terminal.css") (path.Base .Name)) }}
-    {{ $parts = $parts | append . }}
-  {{ end }}
-{{ end }}
+{{/* One bundle: of the theme's CSS only the syntax-highlighting colours are kept, then the site's styles. */}}
+{{ $parts = $parts | append (resources.Get "css/syntax.css") }}
 {{ $parts = $parts | append (resources.Get "site/style.css") }}
 {{ $css := $parts | resources.Concat "css/site.css" | minify | fingerprint }}
 <link rel="stylesheet" href="{{ $css.Permalink }}">

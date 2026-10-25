@@ -1,12 +1,12 @@
-{{/* Theme v4.2.6 404.html, restyled as a shell error; "back to home" keeps the /personal-site/ sub-path. */}}
+{{/* Theme v4.2.6 404.html, restyled as a shell error; the home link keeps the /personal-site/ sub-path. */}}
 {{ define "main" }}
   <section class="wrap page" id="main">
-    <p class="prompt">$ cd {{ "this-page" }}</p>
-    <h1 class="page-title">404</h1>
-    <p class="page-sub">cd: no such file or directory — this page doesn't exist (anymore).</p>
+    <h1 class="page-title">Page not found</h1>
+    <p class="shell-error">cd: no such file or directory</p>
+    <p class="page-sub">This page doesn't exist, or it has moved.</p>
     <div class="actions">
-      <a class="btn btn-primary" href="{{ site.Home.Permalink }}">Back to home page <span aria-hidden="true">→</span></a>
-      <a class="btn btn-ghost" href="{{ "writing/" | relURL }}">Writing</a>
+      <a class="btn btn-primary" href="{{ site.Home.Permalink }}">Go to the home page</a>
+      <a class="btn" href="{{ "writing/" | relURL }}">Read the writing</a>
     </div>
   </section>
 {{ end }}

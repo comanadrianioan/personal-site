@@ -1,42 +1,37 @@
-{{/* About page (content/about.md sets `layout: about`): intro text + experience timeline from front matter. */}}
+{{/* About page (content/about.md sets `layout: about`): intro, then experience, education and skills from front matter. */}}
 {{ define "main" }}
   <article class="wrap page about" id="main">
-    <p class="prompt">$ cat about.md</p>
     <h1 class="page-title">{{ .Title }}</h1>
     <div class="prose">{{ .Content }}</div>
 
     <h2>Experience</h2>
-    <ol class="timeline">
+    <ul class="entries">
       {{ range .Params.experience }}
         <li>
-          <div class="tl-head"><span class="tl-role">{{ .company }}</span>{{ with .years }}<span class="tl-years tl-current">{{ . }}</span>{{ end }}</div>
-          {{ with .roles }}
-            <ul class="tl-roles">
-              {{ range . }}
-                <li><span>{{ .title }}</span>{{ with .years }}<span class="tl-years">{{ . }}</span>{{ end }}</li>
-              {{ end }}
-            </ul>
-          {{ end }}
-          {{ with .note }}<p class="tl-note">{{ . }}</p>{{ end }}
+          <h3>{{ .company }}{{ with .years }} <span class="current">{{ . }}</span>{{ end }}</h3>
+          <p class="roles">{{ delimit (apply .roles "index" "." "title") ", " }}</p>
+          {{ with .note }}<p>{{ . }}</p>{{ end }}
         </li>
       {{ end }}
-    </ol>
+    </ul>
 
     <h2>Education</h2>
-    <ol class="timeline">
+    <ul class="entries">
       {{ range .Params.education }}
         <li>
-          <div class="tl-head"><span class="tl-role">{{ .degree }}</span>{{ with .years }}<span class="tl-years">{{ . }}</span>{{ end }}</div>
-          <div class="tl-company">{{ .school }}</div>
-          {{ with .note }}<p class="tl-note">{{ . }}</p>{{ end }}
+          <h3>{{ .degree }}</h3>
+          <p class="roles">{{ .school }}{{ with .note }}. {{ . }}{{ end }}</p>
         </li>
       {{ end }}
-    </ol>
+    </ul>
 
     <h2>Skills</h2>
-    <p class="chips">{{ range .Params.skills }}<span>{{ . }}</span>{{ end }}</p>
+    <p>{{ delimit .Params.skills ", " }}.</p>
 
     <h2>Elsewhere</h2>
-    <p class="actions"><a class="btn btn-ghost" href="{{ site.Params.links.linkedin }}">{{ partial "icon-linkedin.html" . }} LinkedIn</a> <a class="btn btn-ghost" href="{{ site.Params.links.github }}">{{ partial "icon-github.html" . }} GitHub</a></p>
+    <div class="actions">
+      <a class="btn" href="{{ site.Params.links.linkedin }}">{{ partial "icon-linkedin.html" . }} LinkedIn</a>
+      <a class="btn" href="{{ site.Params.links.github }}">{{ partial "icon-github.html" . }} GitHub</a>
+    </div>
   </article>
 {{ end }}

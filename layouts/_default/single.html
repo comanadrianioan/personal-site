@@ -1,7 +1,6 @@
-{{/* Theme v4.2.6 single.html; changed: title printed as plain text (markdownify silently drops "<...>"), plus a `$ cat` prompt and a link back to the writing list. */}}
+{{/* Theme v4.2.6 single.html; changed: title printed as plain text (markdownify silently drops "<...>"), plus a link back to the writing list. */}}
 {{ define "main" }}
 <article class="post" id="main">
-  {{ if eq .Type "writing" }}<p class="prompt">$ cat writing/{{ .File.ContentBaseName }}.md</p>{{ end }}
   <h1 class="post-title">
     <a href="{{ .Permalink }}">{{ .Title }}</a>
   </h1>
@@ -50,7 +49,7 @@
 
   {{ if eq .Type $.Site.Params.contentTypeName }}
     {{ partial "posts_pagination.html" . }}
-    <p><a class="back-link" href="{{ "writing/" | relURL }}">← all writing</a></p>
+    <p><a class="back-link" href="{{ "writing/" | relURL }}">All writing</a></p>
   {{ end }}
 
   {{ if not (.Params.hideComments | default false) }}

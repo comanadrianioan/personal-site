@@ -28,3 +28,6 @@ disableKinds = ["taxonomy", "term"]
     name = "writing"
     pageRef = "/writing"
     weight = 2
+
+[markup.highlight]
+  noClasses = false

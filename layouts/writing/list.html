@@ -1,17 +1,12 @@
-{{/* /writing/: post list, or an empty-state card while there are no posts. */}}
+{{/* /writing/: post list, or a short note while there are no posts. */}}
 {{ define "main" }}
   <section class="wrap page" id="main">
-    <p class="prompt">$ ls writing/</p>
     <h1 class="page-title">Writing</h1>
     <p class="page-sub">Notes on generative AI, Go and cloud infrastructure.</p>
     {{ with .RegularPages }}
-      <ul class="ls post-list">
-        {{ range . }}
-          <li><a class="post-row" href="{{ .RelPermalink }}"><span class="post-row-title">{{ .Title }}</span><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time></a></li>
-        {{ end }}
-      </ul>
+      {{ partial "post-list.html" . }}
     {{ else }}
-      <div class="empty-card"><p class="empty">No posts yet — first post coming soon.</p></div>
+      <p class="empty">No posts yet. The first one is on its way.</p>
     {{ end }}
   </section>
 {{ end }}
