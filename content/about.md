@@ -34,6 +34,6 @@ skills:
   - { name: "Software Design" }
 ---
 
-I'm Adrian-Ioan Coman, Adrian Coman for short. I'm passionate about exploring new technologies and applying them to real-world problems. Today
+I'm Adrian Coman and I'm passionate about exploring new technologies and applying them to real-world problems. Today
 I work on generative AI projects and the infrastructure behind them, mostly in Go. Before that I
 spent years in the Java ecosystem building microservices and cloud-native systems. Always learning.

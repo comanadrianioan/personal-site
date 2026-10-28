@@ -110,6 +110,7 @@ for page in "$PLAIN/index.html" "$PLAIN/about/index.html" "$PLAIN/writing/index.
   assert_contains "$page" 'class="skip-link" href="#main"'
   assert_contains "$page" 'id="main"'
   assert_cmd "footer © and profile links: $name" bash -c 'f=$(awk "/<footer[ >]/,/<\/footer>/" "$1"); grep -q "© $(date +%Y) Adrian-Ioan Coman" <<<"$f" && grep -q "href=\"https://www.linkedin.com/in/adrian-ioan-coman/\"" <<<"$f" && grep -q "href=\"https://github.com/comanadrianioan\"" <<<"$f"' _ "$page"
+  assert_contains "$page" '<meta property="og:site_name" content="Adrian Coman"'
   assert_cmd "no profile links in top bar: $name" bash -c '! awk "/<header[ >]/,/<\/header>/" "$1" | grep -qiE "linkedin|github"' _ "$page"
 done
 # Own header: both menu items are plain links, no theme dropdown.
@@ -132,13 +133,20 @@ assert_contains "$PLAIN/robots.txt" '^Sitemap: https://comanadrian\.ro/sitemap\.
 assert_contains "$PLAIN/index.html" '<title>Adrian Coman \(Adrian-Ioan Coman\), GenAI &amp; Go engineer</title>'
 assert_contains "$PLAIN/about/index.html" '<title>About \| Adrian Coman</title>'
 assert_contains "$POST" '<title>[^<]+ \| Adrian Coman</title>'
-assert_cmd "titles fit in a result (<= 60 chars)" bash -c '! grep -rhoE --include=*.html "<title>[^<]*</title>" "$PLAIN" "$FIX" | sed -E "s#</?title>##g; s/&amp;/\&/g" | awk "length > 60" | grep -q .'
+# Google cuts titles near 60 characters. Only the fixed pages are held to it: a post title may run longer.
+assert_cmd "fixed-page titles fit in a result (<= 60 chars)" bash -c 'for p in index.html about/index.html writing/index.html; do grep -oE "<title>[^<]*</title>" "$PLAIN/$p"; done | sed -E "s#</?title>##g; s/&amp;/\&/g" | awk "length > 60 { bad = 1 } END { exit bad }"'
+# One name for the site everywhere Google picks a site name from; the page heading keeps the full name.
+assert_contains "$PLAIN/index.html" '<meta property="og:title" content="Adrian Coman">'
+assert_contains "$PLAIN/index.xml" '<title>Adrian Coman</title>'
+assert_contains "$PLAIN/index.html" 'class="hero-title">Adrian-Ioan Coman<'
+assert_contains "$PLAIN/index.html" 'class="out">adrian-ioan coman<'
+assert_cmd "site name defined once (hugo.toml title)" bash -c '! awk "/^\\[params\\.seo\\]/{s=1; next} /^\\[/{s=0} s" hugo.toml | grep -qE "^[[:space:]]*name[[:space:]]*="'
 if command -v node >/dev/null; then
   assert_cmd "structured data (plain + minified)" node tests/structured-data.test.mjs "$PLAIN" "$TMP/minified"
 else
   skip "structured data (no node on this machine)"
 fi
-assert_cmd "About intro uses the short name" bash -c 'awk "/<article[ >]/,/<\/article>/" "$PLAIN/about/index.html" | grep -q "Adrian Coman for short"'
+assert_cmd "About intro uses the short name" bash -c 'awk "/<article[ >]/,/<\/article>/" "$PLAIN/about/index.html" | grep -q "I&rsquo;m Adrian Coman and I&rsquo;m passionate"'
 assert_cmd "profile links carry rel=me" bash -c '[ "$(grep -oE "<a [^>]*rel=\"me\"[^>]*href=\"https://(www\.linkedin\.com/in/adrian-ioan-coman/|github\.com/comanadrianioan)\"" "$PLAIN/index.html" | wc -l | tr -d " ")" = 4 ]'
 assert_cmd "no obsolete robots/keywords meta" bash -c '! grep -rqE --include=*.html "name=\"keywords\"|noodp" "$PLAIN" "$FIX"'
 

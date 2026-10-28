@@ -9,7 +9,7 @@
   {{- $person := dict
     "@type" "Person"
     "@id" $personID
-    "name" $seo.name
+    "name" site.Title
     "alternateName" $seo.alternateNames
     "url" $home
     "jobTitle" $seo.jobTitle
@@ -20,7 +20,7 @@
   {{- $website := dict
     "@type" "WebSite"
     "@id" (printf "%s#website" $home)
-    "name" $seo.name
+    "name" site.Title
     "alternateName" (index $seo.alternateNames 0)
     "url" $home
   -}}

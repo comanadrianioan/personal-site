@@ -1,6 +1,8 @@
 baseURL = "https://comanadrian.ro/"
 locale = "en-us"
-title = "Adrian-Ioan Coman"
+# The site name Google shows ("Adrian Coman", the form people search for); the home page heading
+# shows the full name from content/_index.md.
+title = "Adrian Coman"
 disableKinds = ["taxonomy", "term"]
 enableRobotsTXT = true
 
@@ -16,10 +18,9 @@ enableRobotsTXT = true
   # The home page shows the first part as the role; the parts joined with " · " are the site description.
   tagline = ["Senior Engineer @ CrowdStrike", "GenAI", "Speaker", "Runs on coffee"]
 
-# Search: "Adrian Coman" is the form people search for; the other spellings go into the structured data.
+# Search: the other spellings of the name go into the structured data.
 # No employer here: the company stays out of the structured data.
 [params.seo]
-  name = "Adrian Coman"
   homeTitle = "Adrian Coman (Adrian-Ioan Coman), GenAI & Go engineer"
   alternateNames = ["Adrian-Ioan Coman", "Adrian Ioan Coman", "Coman Adrian", "Coman Adrian-Ioan"]
   jobTitle = "Senior Engineer"

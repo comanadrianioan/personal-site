@@ -3,7 +3,7 @@
 <html lang="{{ $.Site.Language }}">
 <head>
   {{ block "title" . }}
-    <title>{{ if .IsHome }}{{ site.Params.seo.homeTitle }}{{ else }}{{ .Title }} | {{ site.Params.seo.name }}{{ end }}</title>
+    <title>{{ if .IsHome }}{{ site.Params.seo.homeTitle }}{{ else }}{{ .Title }} | {{ site.Title }}{{ end }}</title>
   {{ end }}
   {{ partial "head.html" . }}
 </head>

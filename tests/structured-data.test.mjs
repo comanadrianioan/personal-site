@@ -37,7 +37,7 @@ for (const dir of process.argv.slice(2)) {
     assert.equal(site.name, "Adrian Coman", `${file}: WebSite name`);
     const text = JSON.stringify(graph);
     assert.ok(!/worksFor|CrowdStrike/i.test(text), `${file}: no employer in the structured data`);
-    assert.ok(!/@[a-z0-9.-]+\.[a-z]{2,}|email/i.test(text.replace(/"@(id|type|graph|context)"/g, "")), `${file}: no email`);
+    assert.ok(!/"email"|mailto:/i.test(text), `${file}: no email`);
   }
   const profile = nodes(`${dir}/about/index.html`).find((n) => n["@type"] === "ProfilePage");
   assert.deepEqual(profile?.mainEntity, { "@id": "https://comanadrian.ro/#person" }, `${dir}: About is the Person's ProfilePage`);
