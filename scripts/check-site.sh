@@ -83,13 +83,13 @@ css_has() { assert_cmd "styles: $1" grep -qE -- "$2" "$PLAIN"/css/*.css; }
 
 # --- Build & hosting
 selftest
-assert_contains "$PLAIN/index.html" 'href="https://comanadrianioan\.github\.io/personal-site/css/'
-# Root-relative AND absolute same-host links, in both builds (post pages exist only in $FIX).
-assert_cmd "links keep sub-path" bash -c '! grep -rhoE "(href|src)=\"(https://comanadrianioan\.github\.io)?/[^\"]*" "$PLAIN" "$FIX" --include=*.html | grep -vE "=\"(https://comanadrianioan\.github\.io)?/personal-site/"'
+assert_contains "$PLAIN/index.html" 'href="https://comanadrian\.ro/css/'
+# The site lives at the root of comanadrian.ro: no link may point at the old github.io sub-path.
+assert_cmd "no links to the old address" bash -c '! grep -rqE "(href|src)=\"[^\"]*(github\.io|/personal-site/)" "$PLAIN" "$FIX" --include=*.html'
 check_banned
 assert_cmd "drafts are git-ignored" git check-ignore -q content/writing/drafts/example.md
 assert_cmd "docs/ is git-ignored" git check-ignore -q docs/superpowers/specs/x.md
-assert_contains "$PLAIN/sitemap.xml" '/personal-site/about/'
+assert_contains "$PLAIN/sitemap.xml" 'https://comanadrian.ro/about/'
 # All CSS ships as one bundle, and the theme's unused Fira Code fonts are not referenced.
 assert_cmd "exactly one stylesheet" bash -c '[ "$(grep -o "rel=\"stylesheet\"" "$PLAIN/index.html" | wc -l | tr -d " ")" = 1 ]'
 assert_cmd "no Fira Code reference" bash -c '! grep -rq "FiraCode" "$PLAIN/css"'
@@ -114,8 +114,8 @@ for page in "$PLAIN/index.html" "$PLAIN/about/index.html" "$PLAIN/writing/index.
 done
 # Own header: both menu items are plain links, no theme dropdown.
 assert_contains "$PLAIN/index.html" 'class="site-nav"'
-assert_contains "$PLAIN/index.html" 'href="/personal-site/about/"'
-assert_contains "$PLAIN/index.html" 'href="/personal-site/writing/"'
+assert_contains "$PLAIN/index.html" 'href="/about/"'
+assert_contains "$PLAIN/index.html" 'href="/writing/"'
 assert_not_contains "$PLAIN/index.html" 'menu__dropdown|menu__trigger'
 assert_contains "$PLAIN/index.html" 'name="twitter:card" content="summary_large_image"'
 # Each page gets a description: home from the tagline, writing from its front matter,
@@ -156,10 +156,10 @@ assert_cmd "archetype creates drafts" grep -q '^draft: true' archetypes/writing.
 # The theme markdownifies titles, which silently drops "<...>" on the post page itself.
 assert_contains "$POST" '/writing/java-and-genai/">Java &amp; GenAI: &lt;notes&gt;</a>'
 assert_contains "$POST" 'Sep 1, 2026'
-assert_contains "$POST" 'class="back-link" href="/personal-site/writing/"'
+assert_contains "$POST" 'class="back-link" href="/writing/"'
 assert_contains "$POST" 'class="hanchor" aria-label="Link to this section"'
 assert_contains "$POST" 'class="highlight"'
-assert_not_contains "$FIX/writing/older-post/index.html" 'href="/personal-site/tags/'
+assert_not_contains "$FIX/writing/older-post/index.html" 'href="/tags/'
 # The theme's prev/next block shows a heading from params.readOtherPosts.
 assert_not_contains "$FIX/writing/older-post/index.html" 'class="pagination__title-h"></span>'
 assert_contains "$PLAIN/404.html" 'no such file or directory'
@@ -185,7 +185,7 @@ fi
 assert_cmd "colour tokens defined once" bash -c '[ "$(grep -c -- "--bg:" assets/site/style.css)" = 1 ]'
 assert_cmd "no unused styles" bash -c '! grep -qE "\.section-head|\.nav-icon|!important" assets/site/style.css'
 # The footer's script (the theme's code.js only): it must exist, and not contain the theme's menu.js.
-assert_cmd "no theme menu script" bash -c 'js=$(grep -oE "src=\"/personal-site/[^\"]+\.js\"" "$PLAIN/index.html" | grep -v theme | head -1 | sed -E "s#src=\"/personal-site/##; s#\"##"); [ -n "$js" ] && [ -f "$PLAIN/$js" ] && ! grep -q "menu__trigger" "$PLAIN/$js"'
+assert_cmd "no theme menu script" bash -c 'js=$(grep -oE "src=\"/[^\"]+\.js\"" "$PLAIN/index.html" | grep -v theme | head -1 | sed -E "s#src=\"/##; s#\"##"); [ -n "$js" ] && [ -f "$PLAIN/$js" ] && ! grep -q "menu__trigger" "$PLAIN/$js"'
 assert_cmd "no duplicate skills or subtitle in hugo.toml" bash -c '! grep -qE "^[[:space:]]*(skills|subtitle)[[:space:]]*=" hugo.toml'
 assert_cmd "no dead theme config" bash -c '! grep -qE "showMenuItems|logoText" hugo.toml'
 
@@ -195,6 +195,8 @@ assert_file "$WF"
 assert_not_contains "$WF" '^[[:space:]]*schedule:'
 assert_cmd "every action pinned to a commit SHA" bash -c '[ -f '"$WF"' ] && ! grep -E "^[[:space:]]*-?[[:space:]]*uses:" '"$WF"' | grep -vqE "@[0-9a-f]{40}"'
 assert_cmd "CI Hugo version == local Hugo version" bash -c 'v=$(hugo version | grep -oE "v[0-9]+\.[0-9]+\.[0-9]+" | head -1); grep -q "HUGO_VERSION: ${v#v}" '"$WF"
+# Pages reports http:// until HTTPS is enforced; hugo.toml's https baseURL must win.
+assert_cmd "build uses hugo.toml baseURL" bash -c '! grep -q -- "--baseURL" '"$WF"
 assert_cmd "workflow-level permissions empty" grep -qE '^permissions: \{\}' "$WF"
 assert_cmd "build job is read-only" bash -c 'b=$(awk "/^  build:/,/^  deploy:/" '"$WF"'); echo "$b" | grep -q "contents: read" && ! echo "$b" | grep -qE "pages: write|id-token: write"'
 assert_cmd "deploy job can deploy" bash -c 'awk "/^  deploy:/,0" '"$WF"' | grep -q "id-token: write"'

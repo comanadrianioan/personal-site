@@ -1,10 +1,10 @@
 # personal-site
 
-Adrian-Ioan Coman's personal site — Hugo + the [Terminal](https://github.com/panr/hugo-theme-terminal) theme (Hugo Module), published at <https://comanadrianioan.github.io/personal-site/>.
+Adrian-Ioan Coman's personal site — Hugo + the [Terminal](https://github.com/panr/hugo-theme-terminal) theme (Hugo Module), published at <https://comanadrian.ro/>.
 
-- **Run locally:** `hugo server --baseURL http://localhost:1313/personal-site/`
+- **Run locally:** `hugo server --baseURL http://localhost:1313/`
 - **Run the checks:** `scripts/check-site.sh` (CI runs the same script; a failing check blocks the deploy). The theme switch test, `tests/theme-switch.test.mjs`, needs Node and is skipped without it.
-- **New draft:** `hugo new content writing/drafts/<slug>.md`, preview with `hugo server -D --baseURL http://localhost:1313/personal-site/`
+- **New draft:** `hugo new content writing/drafts/<slug>.md`, preview with `hugo server -D --baseURL http://localhost:1313/`
 - **Drafts are git-ignored on purpose:** this repo is public, so `draft: true` alone would not keep a draft private.
 - **Publish a draft:** move it to `content/writing/`, delete the `draft: true` line, commit, push to `main`.
 - **Deploys:** every push to `main` builds and publishes via `.github/workflows/deploy.yml`.

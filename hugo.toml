@@ -1,4 +1,4 @@
-baseURL = "https://comanadrianioan.github.io/personal-site/"
+baseURL = "https://comanadrian.ro/"
 locale = "en-us"
 title = "Adrian-Ioan Coman"
 disableKinds = ["taxonomy", "term"]
