@@ -118,12 +118,29 @@ assert_contains "$PLAIN/index.html" 'href="/about/"'
 assert_contains "$PLAIN/index.html" 'href="/writing/"'
 assert_not_contains "$PLAIN/index.html" 'menu__dropdown|menu__trigger'
 assert_contains "$PLAIN/index.html" 'name="twitter:card" content="summary_large_image"'
-# Each page gets a description: home from the tagline, writing from its front matter,
+# Each page gets a description: home, About and writing from their front matter (name first),
 # a post without one from its summary, 404 from the site fallback.
-assert_contains "$PLAIN/index.html" '<meta name="description" content="Senior Engineer @ CrowdStrike · GenAI · Speaker · Runs on coffee"'
+for page in index.html about/index.html writing/index.html; do
+  assert_contains "$PLAIN/$page" '<meta name="description" content="(About |Notes by )?Adrian Coman'
+done
 for page in "$PLAIN/writing/index.html" "$PLAIN/404.html" "$FIX/writing/older-post/index.html"; do
   assert_contains "$page" '<meta name="description" content="[^"]+'
 done
+
+# --- Search: "Adrian Coman", "Coman Adrian" and "Adrian-Ioan Coman" must all lead here
+assert_contains "$PLAIN/robots.txt" '^Sitemap: https://comanadrian\.ro/sitemap\.xml$'
+assert_contains "$PLAIN/index.html" '<title>Adrian Coman \(Adrian-Ioan Coman\), GenAI &amp; Go engineer</title>'
+assert_contains "$PLAIN/about/index.html" '<title>About \| Adrian Coman</title>'
+assert_contains "$POST" '<title>[^<]+ \| Adrian Coman</title>'
+assert_cmd "titles fit in a result (<= 60 chars)" bash -c '! grep -rhoE --include=*.html "<title>[^<]*</title>" "$PLAIN" "$FIX" | sed -E "s#</?title>##g; s/&amp;/\&/g" | awk "length > 60" | grep -q .'
+if command -v node >/dev/null; then
+  assert_cmd "structured data (plain + minified)" node tests/structured-data.test.mjs "$PLAIN" "$TMP/minified"
+else
+  skip "structured data (no node on this machine)"
+fi
+assert_cmd "About intro uses the short name" bash -c 'awk "/<article[ >]/,/<\/article>/" "$PLAIN/about/index.html" | grep -q "Adrian Coman for short"'
+assert_cmd "profile links carry rel=me" bash -c '[ "$(grep -oE "<a [^>]*rel=\"me\"[^>]*href=\"https://(www\.linkedin\.com/in/adrian-ioan-coman/|github\.com/comanadrianioan)\"" "$PLAIN/index.html" | wc -l | tr -d " ")" = 4 ]'
+assert_cmd "no obsolete robots/keywords meta" bash -c '! grep -rqE --include=*.html "name=\"keywords\"|noodp" "$PLAIN" "$FIX"'
 
 # --- Home: name, role (first tagline part only), terminal from about.md
 assert_contains "$PLAIN/index.html" 'class="tagline"><span>Senior Engineer @ CrowdStrike</span>'

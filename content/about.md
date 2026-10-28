@@ -1,7 +1,7 @@
 ---
 title: "About"
 layout: about
-description: "Adrian-Ioan Coman — Senior Engineer at CrowdStrike building generative AI projects and infrastructure in Go."
+description: "About Adrian Coman (Adrian-Ioan Coman), Senior Engineer at CrowdStrike building generative AI projects and infrastructure in Go."
 experience:
   - company: "CrowdStrike"
     years: "Present"
@@ -34,6 +34,6 @@ skills:
   - { name: "Software Design" }
 ---
 
-I'm passionate about exploring new technologies and applying them to real-world problems. Today
+I'm Adrian-Ioan Coman, Adrian Coman for short. I'm passionate about exploring new technologies and applying them to real-world problems. Today
 I work on generative AI projects and the infrastructure behind them, mostly in Go. Before that I
 spent years in the Java ecosystem building microservices and cloud-native systems. Always learning.

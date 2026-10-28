@@ -2,6 +2,7 @@ baseURL = "https://comanadrian.ro/"
 locale = "en-us"
 title = "Adrian-Ioan Coman"
 disableKinds = ["taxonomy", "term"]
+enableRobotsTXT = true
 
 [module]
   [[module.imports]]
@@ -14,6 +15,16 @@ disableKinds = ["taxonomy", "term"]
   dateFormat = "Jan 2, 2006"
   # The home page shows the first part as the role; the parts joined with " · " are the site description.
   tagline = ["Senior Engineer @ CrowdStrike", "GenAI", "Speaker", "Runs on coffee"]
+
+# Search: "Adrian Coman" is the form people search for; the other spellings go into the structured data.
+# No employer here: the company stays out of the structured data.
+[params.seo]
+  name = "Adrian Coman"
+  homeTitle = "Adrian Coman (Adrian-Ioan Coman), GenAI & Go engineer"
+  alternateNames = ["Adrian-Ioan Coman", "Adrian Ioan Coman", "Coman Adrian", "Coman Adrian-Ioan"]
+  jobTitle = "Senior Engineer"
+  locality = "Bucharest"
+  country = "RO"
 
 [params.links]
   github = "https://github.com/comanadrianioan"

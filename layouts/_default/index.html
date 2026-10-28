@@ -8,8 +8,8 @@
       <div class="lede">{{ .Content }}</div>
       <div class="actions">
         <a class="btn btn-primary" href="{{ "about/" | relURL }}">About me</a>
-        <a class="btn" href="{{ site.Params.links.linkedin }}">{{ partial "icon-linkedin.html" . }} LinkedIn</a>
-        <a class="btn" href="{{ site.Params.links.github }}">{{ partial "icon-github.html" . }} GitHub</a>
+        <a class="btn" rel="me" href="{{ site.Params.links.linkedin }}">{{ partial "icon-linkedin.html" . }} LinkedIn</a>
+        <a class="btn" rel="me" href="{{ site.Params.links.github }}">{{ partial "icon-github.html" . }} GitHub</a>
       </div>
     </div>
 

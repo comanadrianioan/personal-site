@@ -1,0 +1,32 @@
+{{/* JSON-LD for home and About: who the site is about and where else they are, so a search for any
+     spelling of the name finds this site. Built as data and jsonify'd, so every value is escaped. */}}
+{{- if or .IsHome (eq .Layout "about") -}}
+  {{- $seo := site.Params.seo -}}
+  {{- $home := "" | absURL -}}
+  {{- $personID := printf "%s#person" $home -}}
+  {{- $skills := slice -}}
+  {{- with site.GetPage "/about" }}{{ range .Params.skills }}{{ $skills = $skills | append .name }}{{ end }}{{ end -}}
+  {{- $person := dict
+    "@type" "Person"
+    "@id" $personID
+    "name" $seo.name
+    "alternateName" $seo.alternateNames
+    "url" $home
+    "jobTitle" $seo.jobTitle
+    "address" (dict "@type" "PostalAddress" "addressLocality" $seo.locality "addressCountry" $seo.country)
+    "sameAs" (slice site.Params.links.linkedin site.Params.links.github)
+    "knowsAbout" $skills
+  -}}
+  {{- $website := dict
+    "@type" "WebSite"
+    "@id" (printf "%s#website" $home)
+    "name" $seo.name
+    "alternateName" (index $seo.alternateNames 0)
+    "url" $home
+  -}}
+  {{- $graph := slice $website $person -}}
+  {{- if not .IsHome -}}
+    {{- $graph = $graph | append (dict "@type" "ProfilePage" "url" .Permalink "mainEntity" (dict "@id" $personID)) -}}
+  {{- end }}
+<script type="application/ld+json">{{ dict "@context" "https://schema.org" "@graph" $graph | jsonify | safeJS }}</script>
+{{- end -}}
