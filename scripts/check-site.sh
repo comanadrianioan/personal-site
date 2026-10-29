@@ -103,7 +103,7 @@ for img in favicon.png apple-touch-icon.png og-image.png; do
   assert_cmd "own $img (not the theme's)" cmp -s "static/$img" "$PLAIN/$img"
 done
 if command -v sips >/dev/null; then
-  assert_cmd "favicon is 96x96 (Google needs a multiple of 48)" bash -c 'sips -g pixelWidth -g pixelHeight static/favicon.png | tr -d " " | grep -c -E "pixelWidth:96$|pixelHeight:96$" | grep -qx 2'
+  assert_cmd "favicon is 96x96 (Google recommends over 48x48)" bash -c 'sips -g pixelWidth -g pixelHeight static/favicon.png | tr -d " " | grep -c -E "pixelWidth:96$|pixelHeight:96$" | grep -qx 2'
   assert_cmd "og-image is 1200x627" bash -c 'sips -g pixelWidth -g pixelHeight static/og-image.png | tr -d " " | grep -c -E "pixelWidth:1200|pixelHeight:627" | grep -qx 2'
 else
   skip "og-image size (no sips on this machine)"
