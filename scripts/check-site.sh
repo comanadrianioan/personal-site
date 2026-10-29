@@ -109,12 +109,13 @@ else
   skip "og-image size (no sips on this machine)"
 fi
 
-# --- Every page: skip link to #main, the footer with both profile links, none in the top bar.
+# --- Every page: one <main> landmark, skip link to #main, the footer with both profile links, none in the top bar.
 # The <header>/<footer>/<article> checks cut that element out with awk, since its markup spans lines.
 for page in "$PLAIN/index.html" "$PLAIN/about/index.html" "$PLAIN/writing/index.html" "$PLAIN/404.html" "$POST"; do
   name=${page#"$TMP"/}
   assert_contains "$page" 'class="skip-link" href="#main"'
   assert_contains "$page" 'id="main"'
+  assert_cmd "exactly one <main> landmark: $name" bash -c '[ "$(grep -o "<main[ >]" "$1" | wc -l | tr -d " ")" = 1 ]' _ "$page"
   assert_cmd "footer © and profile links: $name" bash -c 'f=$(awk "/<footer[ >]/,/<\/footer>/" "$1"); grep -q "© $(date +%Y) Adrian-Ioan Coman" <<<"$f" && grep -q "href=\"https://www.linkedin.com/in/adrian-ioan-coman/\"" <<<"$f" && grep -q "href=\"https://github.com/comanadrianioan\"" <<<"$f"' _ "$page"
   assert_contains "$page" '<meta property="og:site_name" content="Adrian Coman"'
   assert_cmd "no profile links in top bar: $name" bash -c '! awk "/<header[ >]/,/<\/header>/" "$1" | grep -qiE "linkedin|github"' _ "$page"

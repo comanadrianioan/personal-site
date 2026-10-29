@@ -1,4 +1,4 @@
-{{/* Theme v4.2.6 baseof.html; changed: titles lead with the name people search for. */}}
+{{/* Theme v4.2.6 baseof.html; changed: titles lead with the name people search for; the content sits in <main> (screen readers' main landmark). */}}
 <!DOCTYPE html>
 <html lang="{{ $.Site.Language }}">
 <head>
@@ -14,10 +14,10 @@
 
   {{ partial "header.html" . }}
 
-  <div class="content">
+  <main class="content">
     {{ block "main" . }}
     {{ end }}
-  </div>
+  </main>
 
   {{ block "footer" . }}
     {{ partial "footer.html" . }}
