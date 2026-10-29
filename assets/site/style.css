@@ -2,16 +2,18 @@
    print it (the brand path, the terminal window, code). Light and dark follow the system setting or the theme switch;
    the terminal window stays dark in both, like a real one. */
 
+/* Both fonts are cut down to the weights the site uses (400-700), which makes them a third smaller:
+   fonttools varLib.instancer <font>.woff2 wght=400:700 -o cut.ttf && pyftsubset cut.ttf --unicodes='*' --layout-features='*' --flavor=woff2 */
 @font-face {
   font-family: "Atkinson Hyperlegible Next";
   src: url("/fonts/atkinson-hyperlegible-next-latin-wght-normal.woff2") format("woff2");
-  font-weight: 200 800;
+  font-weight: 400 700;
   font-display: swap;
 }
 @font-face {
   font-family: "JetBrains Mono";
   src: url("/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2");
-  font-weight: 100 800;
+  font-weight: 400 700;
   font-display: swap;
 }
 

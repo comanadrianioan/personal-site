@@ -97,6 +97,8 @@ assert_not_contains "$PLAIN/index.html" 'FiraCode'
 assert_contains "$PLAIN/index.html" '<link rel="preload" href="/fonts/atkinson-hyperlegible-next-latin-wght-normal\.woff2" as="font" type="font/woff2" crossorigin>'
 assert_contains "$PLAIN/index.html" 'url\("?/fonts/atkinson-hyperlegible-next-latin-wght-normal\.woff2'
 assert_file "$PLAIN/fonts/atkinson-hyperlegible-next-latin-wght-normal.woff2"
+# The fonts carry only the weights in use (400-700), and the @font-face rules say so.
+assert_cmd "fonts cut to 400-700" bash -c '[ "$(grep -c "font-weight: 400 700;" assets/site/style.css)" = 2 ] && [ "$(find static/fonts -name "*.woff2" -size -30k | wc -l | tr -d " ")" = 2 ]'
 assert_not_contains "$PLAIN/index.html" 'panr'
 assert_contains "$PLAIN/index.html" '<link rel="icon" type="image/png" sizes="96x96" href="https://comanadrian\.ro/favicon\.png">'
 for img in favicon.png apple-touch-icon.png og-image.png; do
