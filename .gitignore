@@ -12,9 +12,9 @@ hugo_stats.json
 /content/writing/drafts/
 # Specs, plans and review reports.
 /docs/
-# Agent workspaces and local Claude Code settings.
+# Agent workspaces and local Claude Code files (settings, launch config).
 /.superpowers/
-/.claude/settings.local.json
+/.claude/
 
 # --- Secrets (none are needed to build or deploy; CI uses its own GITHUB_TOKEN)
 .env
