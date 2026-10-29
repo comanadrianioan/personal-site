@@ -26,7 +26,8 @@
 <style>{{ $css.Content | safeCSS }}</style>
 
 <!-- Icons -->
-<link rel="shortcut icon" href="{{ "favicon.png" | absURL }}">
+{{/* Google shows a favicon in results only if it is square and a multiple of 48 px (rendered from assets-src/icon.svg). */}}
+<link rel="icon" type="image/png" sizes="96x96" href="{{ "favicon.png" | absURL }}">
 <link rel="apple-touch-icon" href="{{ "apple-touch-icon.png" | absURL }}">
 
 <!-- Twitter Card -->

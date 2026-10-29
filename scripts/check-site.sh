@@ -98,10 +98,12 @@ assert_contains "$PLAIN/index.html" '<link rel="preload" href="/fonts/atkinson-h
 assert_contains "$PLAIN/index.html" 'url\("?/fonts/atkinson-hyperlegible-next-latin-wght-normal\.woff2'
 assert_file "$PLAIN/fonts/atkinson-hyperlegible-next-latin-wght-normal.woff2"
 assert_not_contains "$PLAIN/index.html" 'panr'
+assert_contains "$PLAIN/index.html" '<link rel="icon" type="image/png" sizes="96x96" href="https://comanadrian\.ro/favicon\.png">'
 for img in favicon.png apple-touch-icon.png og-image.png; do
   assert_cmd "own $img (not the theme's)" cmp -s "static/$img" "$PLAIN/$img"
 done
 if command -v sips >/dev/null; then
+  assert_cmd "favicon is 96x96 (Google needs a multiple of 48)" bash -c 'sips -g pixelWidth -g pixelHeight static/favicon.png | tr -d " " | grep -c -E "pixelWidth:96$|pixelHeight:96$" | grep -qx 2'
   assert_cmd "og-image is 1200x627" bash -c 'sips -g pixelWidth -g pixelHeight static/og-image.png | tr -d " " | grep -c -E "pixelWidth:1200|pixelHeight:627" | grep -qx 2'
 else
   skip "og-image size (no sips on this machine)"
