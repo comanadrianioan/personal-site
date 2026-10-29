@@ -79,20 +79,24 @@ selftest() {
 
 # ---------------------------------------------------------------- checks
 POST="$FIX/writing/java-and-genai/index.html"
-css_has() { assert_cmd "styles: $1" grep -qE -- "$2" "$PLAIN"/css/*.css; }
+css_has() { assert_cmd "styles: $1" grep -qE -- "$2" "$PLAIN/index.html"; }
 
 # --- Build & hosting
 selftest
-assert_contains "$PLAIN/index.html" 'href="https://comanadrian\.ro/css/'
 # The site lives at the root of comanadrian.ro: no link may point at the old github.io sub-path.
 assert_cmd "no links to the old address" bash -c '! grep -rqE "(href|src)=\"[^\"]*(github\.io|/personal-site/)" "$PLAIN" "$FIX" --include=*.html'
 check_banned
 assert_cmd "drafts are git-ignored" git check-ignore -q content/writing/drafts/example.md
 assert_cmd "docs/ is git-ignored" git check-ignore -q docs/superpowers/specs/x.md
 assert_contains "$PLAIN/sitemap.xml" 'https://comanadrian.ro/about/'
-# All CSS ships as one bundle, and the theme's unused Fira Code fonts are not referenced.
-assert_cmd "exactly one stylesheet" bash -c '[ "$(grep -o "rel=\"stylesheet\"" "$PLAIN/index.html" | wc -l | tr -d " ")" = 1 ]'
-assert_cmd "no Fira Code reference" bash -c '! grep -rq "FiraCode" "$PLAIN/css"'
+# All CSS ships as one bundle inlined in the page (nothing render-blocking), and the theme's unused
+# Fira Code fonts are not referenced.
+assert_cmd "exactly one inline style, no stylesheet link" bash -c '[ "$(grep -o "<style>" "$PLAIN/index.html" | wc -l | tr -d " ")" = 1 ] && ! grep -q "rel=\"stylesheet\"" "$PLAIN/index.html"'
+assert_not_contains "$PLAIN/index.html" 'FiraCode'
+# The body font is preloaded, at the same URL the @font-face rule uses.
+assert_contains "$PLAIN/index.html" '<link rel="preload" href="/fonts/atkinson-hyperlegible-next-latin-wght-normal\.woff2" as="font" type="font/woff2" crossorigin>'
+assert_contains "$PLAIN/index.html" 'url\("?/fonts/atkinson-hyperlegible-next-latin-wght-normal\.woff2'
+assert_file "$PLAIN/fonts/atkinson-hyperlegible-next-latin-wght-normal.woff2"
 assert_not_contains "$PLAIN/index.html" 'panr'
 for img in favicon.png apple-touch-icon.png og-image.png; do
   assert_cmd "own $img (not the theme's)" cmp -s "static/$img" "$PLAIN/$img"
@@ -209,8 +213,10 @@ fi
 # --- Source hygiene: one palette, one source per value, no dead code
 assert_cmd "colour tokens defined once" bash -c '[ "$(grep -c -- "--bg:" assets/site/style.css)" = 1 ]'
 assert_cmd "no unused styles" bash -c '! grep -qE "\.section-head|\.nav-icon|!important" assets/site/style.css'
-# The footer's script (the theme's code.js only): it must exist, and not contain the theme's menu.js.
-assert_cmd "no theme menu script" bash -c 'js=$(grep -oE "src=\"/[^\"]+\.js\"" "$PLAIN/index.html" | grep -v theme | head -1 | sed -E "s#src=\"/##; s#\"##"); [ -n "$js" ] && [ -f "$PLAIN/$js" ] && ! grep -q "menu__trigger" "$PLAIN/$js"'
+# The footer's script (the theme's code.js only): deferred, only on pages with code blocks, and
+# not containing the theme's menu.js.
+assert_cmd "no theme menu script" bash -c 'js=$(grep -oE "src=\"/js/[^\"]+\.js\" defer" "'"$POST"'" | head -1 | sed -E "s#src=\"/##; s#\".*##"); [ -n "$js" ] && [ -f "$FIX/$js" ] && ! grep -q "menu__trigger" "$FIX/$js"'
+assert_not_contains "$PLAIN/index.html" 'src="/js/'
 assert_cmd "no duplicate skills or subtitle in hugo.toml" bash -c '! grep -qE "^[[:space:]]*(skills|subtitle)[[:space:]]*=" hugo.toml'
 assert_cmd "no dead theme config" bash -c '! grep -qE "showMenuItems|logoText" hugo.toml'
 

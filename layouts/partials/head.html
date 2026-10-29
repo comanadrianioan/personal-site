@@ -1,6 +1,8 @@
-{{/* Theme v4.2.6 head.html; changed: one CSS bundle, a description fallback, the large link-preview card, structured data, and no keywords/noodp meta. */}}
+{{/* Theme v4.2.6 head.html; changed: one CSS bundle inlined, a preloaded body font, a description fallback, the large link-preview card, structured data, and no keywords/noodp meta. */}}
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{{/* The body font is the largest text's font: fetched alongside the HTML instead of after the CSS. */}}
+<link rel="preload" href="/fonts/atkinson-hyperlegible-next-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 {{/* Applies a saved theme choice before the page draws, so it never flashes the wrong theme. */}}
 <script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
 {{ with resources.Get "site/theme.js" | minify | fingerprint }}<script src="{{ .RelPermalink }}" defer></script>{{ end }}
@@ -16,11 +18,12 @@
 {{ template "_internal/google_analytics.html" . }}
 
 {{ $parts := slice }}
-{{/* One bundle: of the theme's CSS only the syntax-highlighting colours are kept, then the site's styles. */}}
+{{/* One bundle: of the theme's CSS only the syntax-highlighting colours are kept, then the site's styles.
+     Inlined (about 4 KiB compressed) so no stylesheet request blocks the first paint. */}}
 {{ $parts = $parts | append (resources.Get "css/syntax.css") }}
 {{ $parts = $parts | append (resources.Get "site/style.css") }}
-{{ $css := $parts | resources.Concat "css/site.css" | minify | fingerprint }}
-<link rel="stylesheet" href="{{ $css.Permalink }}">
+{{ $css := $parts | resources.Concat "css/site.css" | minify }}
+<style>{{ $css.Content | safeCSS }}</style>
 
 <!-- Icons -->
 <link rel="shortcut icon" href="{{ "favicon.png" | absURL }}">

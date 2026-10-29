@@ -9,10 +9,11 @@
   </div>
 </footer>
 
-{{/* Of the theme's scripts only code.js is kept (language label and copy button on code blocks); the own header has no dropdown menus for menu.js. */}}
-{{ $bundle := resources.Get "js/code.js" | js.Build | resources.Minify }}
-
-<script type="text/javascript" src="{{ $bundle.RelPermalink }}"></script>
+{{/* Of the theme's scripts only code.js is kept (language label and copy button on code blocks); the own header has no dropdown menus for menu.js.
+     Loaded only on pages with code blocks, deferred so it never blocks the page. */}}
+{{ if in .Content "<pre" }}
+  {{ with resources.Get "js/code.js" | js.Build | minify | fingerprint }}<script src="{{ .RelPermalink }}" defer></script>{{ end }}
+{{ end }}
 
 <!-- Extended footer section-->
 {{ partial "extended_footer.html" . }}
