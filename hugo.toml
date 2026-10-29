@@ -5,6 +5,20 @@ locale = "en-us"
 title = "Adrian Coman"
 disableKinds = ["taxonomy", "term"]
 enableRobotsTXT = true
+# Last-modified dates (sitemap, structured data) come from git; CI checks out the full history for it.
+enableGitInfo = true
+
+# Agents: every page also has a Markdown copy (Hugo's built-in "markdown" format, at index.md),
+# and the home page an /llms.txt index of them.
+[outputFormats.llms]
+  mediaType = "text/plain"
+  baseName = "llms"
+  isPlainText = true
+  notAlternative = true
+[outputs]
+  home = ["html", "rss", "markdown", "llms"]
+  section = ["html", "rss", "markdown"]
+  page = ["html", "markdown"]
 
 [module]
   [[module.imports]]
