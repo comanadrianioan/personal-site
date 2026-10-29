@@ -1,4 +1,4 @@
-// Checks the JSON-LD in a built site: Person + WebSite on home and About, ProfilePage on About,
+// Checks the JSON-LD in a built site: Person + WebSite on home and About, ProfilePage (with dateModified) on About,
 // nothing on other pages, and no employer in the data.
 // Usage: node tests/structured-data.test.mjs <build dir>... — exits 1 on the first failed assertion.
 import { readFileSync } from "node:fs";
@@ -41,6 +41,7 @@ for (const dir of process.argv.slice(2)) {
   }
   const profile = nodes(`${dir}/about/index.html`).find((n) => n["@type"] === "ProfilePage");
   assert.deepEqual(profile?.mainEntity, { "@id": "https://comanadrian.ro/#person" }, `${dir}: About is the Person's ProfilePage`);
+  assert.ok(!Number.isNaN(Date.parse(profile.dateModified)), `${dir}: ProfilePage has a dateModified`);
   assert.equal(nodes(`${dir}/index.html`).some((n) => n["@type"] === "ProfilePage"), false, `${dir}: home is not a ProfilePage`);
   assert.equal(jsonld(`${dir}/writing/index.html`).length, 0, `${dir}: no JSON-LD on Writing`);
 }

@@ -39,8 +39,8 @@ assert_cmd() {
   guard "$desc" || return 1
   if "$@"; then pass "$desc"; else fail "$desc"; fi
 }
-# Content-wide search over generated HTML/XML; -I skips binary files (fonts).
-grep_site() { grep -rIliE --include='*.html' --include='*.xml' -- "$1" "$PLAIN" "$FIX"; }
+# Content-wide search over generated pages, feeds and the agents' Markdown/llms.txt; -I skips binary files (fonts).
+grep_site() { grep -rIliE --include='*.html' --include='*.xml' --include='*.md' --include='*.txt' -- "$1" "$PLAIN" "$FIX"; }
 export -f grep_site
 
 TMP=$(mktemp -d)
@@ -158,6 +158,27 @@ fi
 assert_cmd "About intro uses the short name" bash -c 'awk "/<article[ >]/,/<\/article>/" "$PLAIN/about/index.html" | grep -q "I&rsquo;m Adrian Coman and I&rsquo;m passionate"'
 assert_cmd "profile links carry rel=me" bash -c '[ "$(grep -oE "<a [^>]*rel=\"me\"[^>]*href=\"https://(www\.linkedin\.com/in/adrian-ioan-coman/|github\.com/comanadrianioan)\"" "$PLAIN/index.html" | wc -l | tr -d " ")" = 4 ]'
 assert_cmd "no obsolete robots/keywords meta" bash -c '! grep -rqE --include=*.html "name=\"keywords\"|noodp" "$PLAIN" "$FIX"'
+
+# --- Agents: a Markdown copy of each page, linked from its HTML, and /llms.txt listing them
+for page in index about/index writing/index writing/java-and-genai/index; do
+  assert_file "$FIX/$page.md"
+  assert_contains "$FIX/$page.html" "<link href=\"https://comanadrian\.ro/${page%index}index\.md\" rel=\"alternate\" type=\"text/markdown\""
+done
+assert_file "$TMP/minified/about/index.md"
+# Plain text: the fixture title arrives as written, not HTML-escaped.
+assert_contains "$FIX/writing/java-and-genai/index.md" '^# Java & GenAI: <notes>$'
+assert_contains "$FIX/llms.txt" '^- \[Java & GenAI: <notes>\]\(https://comanadrian\.ro/writing/java-and-genai/index\.md\)'
+# About's Markdown carries what its front matter holds, not only the intro.
+for word in Playtika POLITEHNICA 'Software Design'; do
+  assert_contains "$PLAIN/about/index.md" "$word"
+done
+assert_contains "$PLAIN/writing/index.md" '^No posts yet\.$'
+assert_contains "$PLAIN/llms.txt" '^# Adrian Coman$'
+assert_contains "$PLAIN/llms.txt" '^> Adrian Coman \(Adrian-Ioan Coman\)'
+assert_cmd "every llms.txt link resolves in the build" bash -c 'urls=$(grep -oE "https://comanadrian\.ro/[^)]*" "$FIX/llms.txt"); [ -n "$urls" ] && for u in $urls; do [ -f "$FIX/${u#https://comanadrian.ro/}" ] || exit 1; done'
+# Dates from git (enableGitInfo), which needs the full history in CI.
+assert_contains "$PLAIN/sitemap.xml" '<lastmod>'
+assert_contains .github/workflows/deploy.yml '^[[:space:]]+fetch-depth: 0$'
 
 # --- Home: name, role (first tagline part only), terminal from about.md
 assert_contains "$PLAIN/index.html" 'class="tagline"><span>Senior Engineer @ CrowdStrike</span>'

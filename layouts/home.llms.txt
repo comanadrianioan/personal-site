@@ -1,0 +1,21 @@
+{{- /* /llms.txt (llmstxt.org): who the site is about and where the Markdown copy of each page is. */ -}}
+# {{ site.Title }}
+
+> {{ .Description }}
+
+Also written as: {{ delimit site.Params.seo.alternateNames ", " }}. Every page has a Markdown copy at the same address with index.md.
+
+## Pages
+
+{{ with site.GetPage "/about" }}- [{{ .Title }}]({{ with .OutputFormats.Get "markdown" }}{{ .Permalink }}{{ end }}): experience, education and skills{{ end }}
+{{ with site.GetPage "/writing" }}- [{{ .Title }}]({{ with .OutputFormats.Get "markdown" }}{{ .Permalink }}{{ end }}): {{ .Description }}{{ end }}
+{{ with where site.RegularPages "Type" "writing" }}
+## Writing
+{{ range . }}
+- [{{ .Title }}]({{ with .OutputFormats.Get "markdown" }}{{ .Permalink }}{{ end }}){{ with .Description }}: {{ . }}{{ end }}
+{{- end }}
+{{ end }}
+## Profiles
+
+- [LinkedIn]({{ site.Params.links.linkedin }})
+- [GitHub]({{ site.Params.links.github }})
